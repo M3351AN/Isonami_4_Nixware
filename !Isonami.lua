@@ -1,10 +1,10 @@
 local ID = "Teikumo"
-client.notify("Salut,welcome use Isonami.")
+client.notify("Salut"..ID"welcome use Isonami.")
 client.notify("Isonamiv1 by M3351AN#7417 A.K.A. Teikumo.")
-function on_linius_resolver_credit()
+function on_credit()
     client.notify("You are using Isonami via teiku.moe.")
 end
-client.register_callback("round_start", on_linius_resolver_credit)
+client.register_callback("round_start", on_credit)
 --=========================================================================================================================
 ffi = require 'ffi'
 ffi.cdef[[
