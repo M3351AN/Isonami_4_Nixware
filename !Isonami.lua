@@ -1,5 +1,5 @@
-local ID = "Teikumo"
-client.notify("Salut"..ID"welcome use Isonami.")
+local username = client.get_username()
+client.notify("Salut"..username"welcome use Isonami.")
 client.notify("Isonamiv1 by M3351AN#7417 A.K.A. Teikumo.")
 function on_credit()
     client.notify("You are using Isonami via teiku.moe.")
