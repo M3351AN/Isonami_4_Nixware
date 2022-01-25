@@ -209,17 +209,17 @@ local function on_move(cmd)
 
 end
 
-function scout_boost(cmd)  
-    if switch then
-        switch = false
+function on_scout_boost(cmd)  
+    if switch0 then
+        switch0 = false
     else
-         switch = true
+         switch0 = true
     end
 
-    if switch then
-        local antiaim_active_movement_type = ui.get_slider_int("rage_scout_hitchance"):set_value(min)
+    if switch0 then
+        local Scout_HC = ui.get_slider_int("rage_scout_hitchance"):set_value(min)
     else
-        local antiaim_active_movement_type = ui.get_slider_int("rage_scout_hitchance"):set_value(max_HC)
+        local Scout_HC = ui.get_slider_int("rage_scout_hitchance"):set_value(max_HC)
     end
 end
 
@@ -229,7 +229,7 @@ local m_vecVelocity = {
     [1] = se.get_netvar("DT_BasePlayer", "m_vecVelocity[1]")
 }
 
-local function low_speed()
+local function low_speed(cmd)
     local player = entitylist.get_entity_by_index(engine.get_local_player())
     
     if player then
@@ -245,53 +245,50 @@ local function low_speed()
     end
 end
 
-client.register_callback("paint", low_speed)
+client.register_callback("create_move", low_speed)
 client.register_callback("create_move", on_move)
-client.register_callback("create_move", scout_boost)
+client.register_callback("create_move", on_scout_boost)
 
 --=========================================================================================================================
-function ping_spike()
+function on_ping_spike(cmd)
     if ping_spike:is_active() then
-               
-        ui.get_slider_int("misc_ping_spike_amount"):set_value(max_PS)
+        if switch1 then
+            switch1 = false
         else
-        ui.get_slider_int("misc_ping_spike_amount"):set_value(min_PS)	
+             switch1 = true
+        end
+    
+        if switch1 then
+            local flip_PS = ui.get_slider_int("misc_ping_spike_amount"):set_value(max_PS)
+        else
+            local flip_PS = ui.get_slider_int("misc_ping_spike_amount"):set_value(min_PS)
+        end      
+        
+        	
     end
 end
-client.register_callback("paint", ping_spike)
+client.register_callback("create_move", on_ping_spike)
+
+
 --RESOLVER
 --=========================================================================================================================
 
 
-function on_fast_filp()
-    local antihit_antiaim_flip_bind = ui.get_key_bind("antihit_antiaim_flip_bind")
-    if linius_resolver:get_value() then
-
-
-        function mod(a, b)
-            return a - (math.floor(a/b)*b)
+function on_fast_filp(cmd)
+    if fast_filp:get_value() == true then
+               
+        if switch2 then
+            switch2 = false
+        else
+             switch2 = true
         end
-        
-        
-            if antihit_antiaim_flip_bind:get_key() ~= 0 then 
-                antihit_antiaim_flip_bind:set_type(2)
-                return 
-            end
-        
-            math.randomseed(cmd.command_number)
-        
-            if mod(cmd.command_number, math.random(3, 5)) == 0 then
-                if antihit_antiaim_flip_bind:get_type() == 0 then
-                    antihit_antiaim_flip_bind:set_type(2)
-                else
-                    antihit_antiaim_flip_bind:set_type(0)
-                end
-            end
-        
-
-
-
-    end   
+    
+        if switch2 then
+            local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
+        else
+            local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
+        end
+    end
 end
 
 client.register_callback("create_move", on_fast_filp)
@@ -600,7 +597,7 @@ function on_kill_say(event)
     local died_name = died_info.name
 
     if attacker_index == me and died_index ~= me then
-        engine.execute_client_cmd("say I just kill".. died_name .."with Isonami, via Teiku.moe.")
+        engine.execute_client_cmd("say Isonami, via Teiku.moe.")
     end
 end
 client.register_callback("player_death", on_kill_say)
