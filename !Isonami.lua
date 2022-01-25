@@ -154,6 +154,8 @@ local antihit_antiaim_left = ui.add_key_bind("Left", "antihit_antiaim_left", 0, 
 local antihit_antiaim_backwards = ui.add_key_bind("Backwards", "antihit_antiaim_backwards", 0, 2)
 local antihit_antiaim_right = ui.add_key_bind("Right", "antihit_antiaim_right", 0, 2)
 
+local yaw_desync = ui.add_slider_int("yaw_desync", "yaw_desync", 0, 60, 0)
+
 local fast_filp = ui.add_check_box("desync fast filp", "fast_filp", false)
 
 local legit_aa = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
@@ -645,14 +647,14 @@ function on_low_delta_on_slowwalk()
     if is_slowwalk_checkbox:get_value() and is_slowwalk:is_active() and low_delta_on_slowwalk:get_value() then
         is_desync_length:set_value(low_delta_angle:get_value())
     else 
-        is_desync_length:set_value(59)
+        is_desync_length:set_value(yaw_desync:get_value())
     end
 end
 
 function on_unload_low_delta_on_slowwalk()
     is_desync_length = ui.get_slider_int("antihit_antiaim_desync_length")
 
-    is_desync_length:set_value(60)
+    is_desync_length:set_value(yaw_desync:get_value())
 end
 client.register_callback("paint", on_low_delta_on_slowwalk)
 client.register_callback('unload', on_unload_low_delta_on_slowwalk)
