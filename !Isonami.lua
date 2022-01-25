@@ -150,6 +150,10 @@ local ping_spike_b = ui.add_slider_int("def. ping spike", "PS_b", 0, 200, 50)
 
 --ANTI-AIM
 --=========================================================================================================================
+local antihit_antiaim_left = ui.add_key_bind("Left", "antihit_antiaim_left", 0, 2)
+local antihit_antiaim_backwards = ui.add_key_bind("Backwards", "antihit_antiaim_backwards", 0, 2)
+local antihit_antiaim_right = ui.add_key_bind("Right", "antihit_antiaim_right", 0, 2)
+
 local fast_filp = ui.add_check_box("desync fast filp", "fast_filp", false)
 
 local legit_aa = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
@@ -250,7 +254,7 @@ function hasbit(a, b)
     return a % (b + b) >= b
 end
 
-
+local antihit_antiaim_yaw = 0
 --=========================================================================================================================
 
 
@@ -464,6 +468,50 @@ client.register_callback("create_move", on_jitter)
 
 --ANTI-AIM
 --=========================================================================================================================
+local function get_antihit_antiaim_yaw()
+    if client.is_key_clicked(antihit_antiaim_left:get_key()) then
+        if antihit_antiaim_yaw == 1 then
+	    return 0
+	end
+        antihit_antiaim_yaw = 1
+    end
+    if client.is_key_clicked(antihit_antiaim_backwards:get_key()) then
+        if antihit_antiaim_yaw == 2 then
+	    return 0
+	end
+        antihit_antiaim_yaw = 2
+    end
+    if client.is_key_clicked(antihit_antiaim_right:get_key()) then
+        if antihit_antiaim_yaw == 3 then
+	    return 0
+	end
+        antihit_antiaim_yaw = 3
+    end
+    return antihit_antiaim_yaw
+end
+
+local function for_manual_on_paint()
+    antihit_antiaim_yaw = get_antihit_antiaim_yaw()
+end
+
+local function for_manual_on_create_move(cmd)
+    if antihit_antiaim_yaw == 0 then
+        ui.get_combo_box("antihit_antiaim_yaw"):set_value(1)
+    end
+    if antihit_antiaim_yaw == 1 then
+        ui.get_combo_box("antihit_antiaim_yaw"):set_value(2)
+    end
+	if antihit_antiaim_yaw == 2 then
+        ui.get_combo_box("antihit_antiaim_yaw"):set_value(1)
+    end
+	if antihit_antiaim_yaw == 3 then
+        ui.get_combo_box("antihit_antiaim_yaw"):set_value(3)
+    end
+end
+
+client.register_callback("paint", for_manual_on_paint)
+client.register_callback("create_move", for_manual_on_create_move)
+
 function on_legit_aa()
     is_at_targets = ui.get_check_box("antihit_antiaim_at_targets")
     is_pitch = ui.get_combo_box("antihit_antiaim_pitch")
