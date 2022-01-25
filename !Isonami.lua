@@ -368,9 +368,9 @@ function on_low_delta_on_slowwalk()
     end
 
     if is_slowwalk_checkbox:get_value() and is_slowwalk:is_active() and low_delta_on_slowwalk:get_value() then
-        is_desync_length:set_value(low_delta_angle)
+        is_desync_length:set_value(low_delta_angle:get_value())
     else
-        is_desync_length:set_value(60)
+        is_desync_length:set_value(59)
     end
 end
 
