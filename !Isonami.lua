@@ -159,7 +159,7 @@ local fast_filp = ui.add_check_box("desync fast filp", "fast_filp", false)
 local legit_aa = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
 
 local add_jitter = ui.add_check_box("add jitter(test)", "add_jitter", false)
-local jitter_angle = ui.add_slider_int("jitter angle", "jitter_angle", 0, 60, 0)
+local jitter_angle = ui.add_slider_int("jitter angle", "jitter_angle", 0, 180, 0)
 
 local low_delta_on_slowwalk = ui.add_check_box("low delta on slowwalk", "low_delta_on_slowwalk", false)
 local low_delta_angle = ui.add_slider_int("low delta angle", "low_delta_angle", 0, 60, 0)
@@ -178,7 +178,8 @@ local indicators = ui.add_check_box("indicators", "indicators", false)
 local radar_hack = ui.add_check_box("radar hack", "radar_hack", false)
 local logs = ui.add_check_box("logs (soon)", "logs", false)
 local thirdperson_distance = ui.add_slider_int("thirdperson distance value", "thirdperson_distance", 0, 200, 150)
-local watermark = ui.add_check_box("watermark", "watermark", false)
+local nwatermark = ui.add_check_box("new watermark", "nwatermark", false)
+local watermark = ui.add_check_box("classic watermark", "watermark", false)
 local watermark_x = ui.add_slider_int("watermark_x", "watermark_x", 0, engine.get_screen_size().x, 2)
 local watermark_y = ui.add_slider_int("watermark_y", "watermark_y", 0, engine.get_screen_size().y, 0)
 local hotkey_binds = ui.add_check_box("hotkey binds", "hotkey_binds", false)
@@ -810,7 +811,7 @@ client.register_callback("unload", on_unload_thirdperson_distance)
 watermark_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
 function on_watermark()
     ping = se.get_latency()
-    text = "teiku.moe | isonami | ping " .. ping .. "ms" 
+    text = "teiku.moe | isonami | ".. username .." | ping " .. ping .. "ms" 
     text_size = renderer.get_text_size(watermark_font, 18, text)
     x = watermark_x:get_value()
     y = watermark_y:get_value()
@@ -822,7 +823,60 @@ function on_watermark()
 end
 client.register_callback("paint", on_watermark)
 
+local screen = engine.get_screen_size()
+local pos, pos2 = vec2_t.new(screen.x - 325, 5), vec2_t.new(screen.x - 5, 30)
 
+
+local pos3, pos4 = vec2_t.new(screen.x - 325, 5), vec2_t.new(screen.x - 5, 30)
+
+function get_fps()
+    frametime = globalvars.get_frame_time()
+    local fps = math.floor(1000 / (frametime * 1000))
+    if fps < 10 then fps = "   " .. tostring(fps)
+    elseif fps < 100 then fps = "  " .. tostring(fps) end
+    return fps
+end
+function get_time()
+    local hours, minutes, seconds = client.get_system_time()
+    if hours < 10 then hours = "0" .. tostring(hours) end
+    if minutes < 10 then minutes = "0" .. tostring(minutes) end
+    if seconds < 10 then seconds = "0" .. tostring(seconds) end
+    return hours .. ":" .. minutes .. ":" .. seconds
+end
+function get_ping()
+    local ping = math.floor(se.get_latency())
+    if ping < 10 then ping = " " .. tostring(ping) end
+    return ping
+end
+
+function get_tickr()
+    local tickr = 1.0 / globalvars.get_interval_per_tick()
+    return tickr
+end
+
+function draw_watermark()
+if nwatermark:get_value() == true then
+    renderer.filled_polygon({ vec2_t.new(screen.x - 360, 6), vec2_t.new(screen.x - 325, 30), vec2_t.new(screen.x - 325, 6) }, color_t.new(30,30,30,255)) --0 25 25
+    local inner_pos1, inner_pos2 = vec2_t.new(screen.x - 300, 15), vec2_t.new(screen.x - 100, 65)
+    renderer.rect_filled(pos, pos2, color_t.new(30,30,30,255))
+	
+  --renderer.rect(pos, pos2, color_t.new(15,15,15,255)) --отрисовка говна рамки
+  --renderer.rect_filled(inner_pos1, inner_pos2, color_t.new(20,20,20,255))
+  --renderer.rect(inner_pos1, inner_pos2, color_t.new(15,15,15,255))
+  
+    local fpos1, fpos2 = vec2_t.new(screen.x - 360, 3), vec2_t.new(screen.x - 5, 6) -- отрисовка разно цеветной линии
+    renderer.rect_filled_fade(fpos1, fpos2, color_t.new(243, 0, 255, 255), color_t.new(255, 243, 77, 255), color_t.new(255, 243, 77, 255), color_t.new(243, 0, 255, 255))
+	
+  --local npos, nposs = vec2_t.new(screen.x - 160, 17), vec2_t.new(screen.x - 159, 18) --отрисовка тега чита
+  --renderer.text("NIXWARE", verdana, nposs, 13, color_t.new(0, 0, 0, 255))
+  --renderer.text("NIXWARE", verdana, npos, 13, color_t.new(255, 255, 255, 255))
+  
+    local fpos = vec2_t.new(screen.x - 325, 10) --корды отрисовки текста
+    renderer.text("Isonami | ".. username .." | ".. get_time() ..  " | PING: " .. get_ping() .. " | FPS:" .. get_fps(), watermark_font, fpos, 18, color_t.new(255, 255, 255, 255))
+	end
+end
+ 
+client.register_callback("paint", draw_watermark)
 --=========================================================================================================================
 hotkey_binds_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
 type = { "always", "holding", "toggled", "disable" }
