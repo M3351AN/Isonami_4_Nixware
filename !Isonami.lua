@@ -73,6 +73,7 @@ ffi.cdef[[
 
     struct WeaponInfo_t
     {
+        char _0x0000[20]; int iMaxClip; char _0x0018[12]; int iMaxReservedAmmo; char _0x0028[96]; char* szHUDName; char* szWeaponName; char _0x0090[60]; int iType; int iPrice; int iReward; char _0x00D8[20]; bool bFullAmmo; char _0x00ED[3]; int iDamage; float flArmorRatio; int iBullets; float flPenetration; char _0x0100[8]; float flRange; float flRangeModifier; char _0x0110[16]; bool bSilencer; char _0x0121[15]; float flMaxSpeed; float flMaxSpeedAlt; char _0x0138[76]; int iRecoilSeed; char _0x0188[32];
         char _0x0000[20];
         __int32 max_clip;    
         char _0x0018[12];
@@ -107,6 +108,7 @@ ffi.cdef[[
 
 ENTITY_LIST_POINTER = ffi.cast("void***", se.create_interface("client.dll", "VClientEntityList003")) or error("Failed to find VClientEntityList003!")
 GET_CLIENT_ENTITY_FN = ffi.cast("GetClientEntity_4242425_t", ENTITY_LIST_POINTER[0][3])
+
 
 ffi_helpers = {
     get_animstate_offset = function()
@@ -434,6 +436,8 @@ end
 
 function has_bit(x, p) return x % (p + p) >= p end
 function set_bit(x, p) return has_bit(x, p) and x or x + p end
+
+function GetWeaponData( weapon ) return ffi.cast("struct WeaponInfo_t*", weapon_data_call(ffi.cast("void*", weapon:get_address()))) end
 --=========================================================================================================================
 
 
@@ -460,25 +464,27 @@ if knife_bot:get_value() == true then
 end
 end 
 client.register_callback( "create_move", on_knife_bot) 
-function jump_scout()
-    if jump_scout:get_value() == true then
+function on_jump_scout(cmd)
+
     local player = entitylist.get_entity_by_index(engine.get_local_player())
     
     if player then
         velocity = math.sqrt(player:get_prop_float(m_vecVelocity[0]) ^ 2 + player:get_prop_float(m_vecVelocity[1]) ^ 2)
     end
 
+    if jump_scout:get_value() == true then
+
     if velocity ~= nil then
-        if velocity > 5 then
-            ui.set_bool("misc_autostrafer", true)
+        if velocity > 15 then
+            ui.get_check_box("misc_autostrafer"):set_value(true)
         else
-            ui.set_bool("misc_autostrafer", false)
+            ui.get_check_box("misc_autostrafer"):set_value(false)
         end
     end
-end
+    end
 end
 
-client.register_callback("paint", jump_scout)
+client.register_callback("paint", on_jump_scout)
 
 function on_dmg_override()
     override = {
