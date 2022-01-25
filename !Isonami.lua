@@ -121,7 +121,9 @@ ffi_helpers = {
 
 --RAGE
 --=========================================================================================================================
+local jump_scout = ui.add_check_box("jump scout", "jump_scout", false)
 
+local knife_bot = ui.add_check_box("knife bot", "knife_bot", false)
 
 local dmg_override = ui.add_key_bind("dmg override", "dmg_override", 0, 1)
 local dmg_override_value = ui.add_slider_int("dmg override value", "dmg_override_value", 1, 120, 1)
@@ -154,7 +156,7 @@ local antihit_antiaim_left = ui.add_key_bind("Left", "antihit_antiaim_left", 0, 
 local antihit_antiaim_backwards = ui.add_key_bind("Backwards", "antihit_antiaim_backwards", 0, 2)
 local antihit_antiaim_right = ui.add_key_bind("Right", "antihit_antiaim_right", 0, 2)
 
-local yaw_desync = ui.add_slider_int("yaw_desync", "yaw_desync", 0, 60, 0)
+local yaw_desync = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
 
 local fast_filp = ui.add_check_box("desync fast filp", "fast_filp", false)
 
@@ -180,7 +182,9 @@ local sta_leg = ui.add_check_box("static leg", "sta_leg", false)
 --=========================================================================================================================
 local molo_color = ui.add_color_edit("MolotovRadius", "molo_color", true, color_t.new(255, 255, 255, 255))
 local indicators = ui.add_check_box("indicators", "indicators", false)
+local scope_transparent = ui.add_check_box("scope transparent(require update)", "scope_transparent", false)
 local radar_hack = ui.add_check_box("radar hack", "radar_hack", false)
+local flip_knife = ui.add_check_box("flip knife hand", "flip_knife", false)
 local logs = ui.add_check_box("logs (soon)", "logs", false)
 local thirdperson_distance = ui.add_slider_int("thirdperson distance value", "thirdperson_distance", 0, 200, 150)
 local nwatermark = ui.add_check_box("new watermark", "nwatermark", false)
@@ -221,6 +225,7 @@ local shared_onground
 
 local m_flPoseParameter = se.get_netvar("DT_BaseAnimating", "m_flPoseParameter")
 
+local m_bIsScoped = 0x9974 -- https://github.com/frk1/hazedumper/blob/master/csgo.hpp
 local m_vecOrigin = se.get_netvar("DT_BaseEntity", "m_vecOrigin")
 local m_flDuckSpeed = se.get_netvar("DT_BasePlayer", "m_flDuckSpeed");
 local m_flDuckAmount = se.get_netvar("DT_BasePlayer", "m_flDuckAmount");
@@ -287,14 +292,193 @@ local des1 = 0
 local lby1 = 0
 local lby_sw1 = 0
 
+--local visuals_models_local_color = ui.get_color_edit('visuals_models_local_color_')
+local visuals_models_local_material_color = ui.get_color_edit('visuals_models_local_material_color')
+
+local cache = {
+    --chams = visuals_models_local_color:get_value(),
+    material = visuals_models_local_material_color:get_value()
+}
+
+local transparent = ui.add_slider_int('transparent in scope', 'vis_transparent_in_scope', 1, 100, 75)
+
+local function clamp(val, min, max)
+    if val > max then return max end
+    if val < min then return min end
+    return val
+end
 
 weapon_data_call = ffi.cast("int*(__thiscall*)(void*)", client.find_pattern("client.dll", "55 8B EC 81 EC ? ? ? ? 53 8B D9 56 57 8D 8B ? ? ? ? 85 C9 75 04"));
+
+local velocity = nil
+local m_vecVelocity = {
+    [0] = se.get_netvar("DT_BasePlayer", "m_vecVelocity[0]"),
+    [1] = se.get_netvar("DT_BasePlayer", "m_vecVelocity[1]")
+}
+
+FLT_MAX = 2147483647.0
+
+function get_player(  )
+
+	local closet_index, most_close = -1, FLT_MAX
+
+	local entities = entitylist.get_players(0)
+
+	for index = 1,#entities do
+		local entity = entities[index]
+
+		if not entity:is_alive() or entity:is_dormant() then
+            goto continue
+        end
+
+        local origin_var = entitylist.get_local_player():get_prop_vector( se.get_netvar( "DT_BaseEntity", "m_vecOrigin" ) )
+        local player_origin = entity:get_prop_vector( se.get_netvar( "DT_BaseEntity", "m_vecOrigin" ) )
+
+        local difference_between_players = vec3_t.new(origin_var.x - player_origin.x, origin_var.y - player_origin.y, origin_var.z - player_origin.z):length()
+
+        if difference_between_players < most_close then
+        	most_close = difference_between_players; closet_index = entity:get_index();
+        end
+
+        ::continue::
+	end
+
+	return closet_index
+
+end
+
+function get_attack( enemy )
+
+	local tickbase     = entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BasePlayer", "m_nTickBase" ) )
+	local weapon   	   = entitylist.get_entity_from_handle( entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BaseCombatCharacter", "m_hActiveWeapon" ) ) )
+	local enemy_health = enemy:get_prop_int( se.get_netvar( "DT_BasePlayer", "m_iHealth" ) )
+	local enemy_armor  = enemy:get_prop_int( se.get_netvar( "DT_CSPlayer", "m_ArmorValue" ) )
+
+	if enemy_armor > 55 then
+
+		if get_next_left_attack_health( enemy_armor ) > enemy_health then
+			return 1
+		else
+			if (enemy_health - get_next_left_attack_health( enemy_armor )) > 24 then
+				return 1
+			else
+				return 2048
+			end
+		end
+
+	else
+
+		if get_next_left_attack_health( enemy_armor ) > enemy_health then
+			return 1
+		else
+			if (enemy_health - get_next_left_attack_health( enemy_armor )) > 35 then
+				return 1
+			else
+				return 2048
+			end
+		end
+
+	end 
+
+end
+
+function get_dist( enemy )
+
+	return get_attack( enemy ) == 1 and 78 or 63
+
+end
+
+function get_next_left_attack_health( armor )
+
+	local tickbase = entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BasePlayer", "m_nTickBase" ) )
+	local weapon   = entitylist.get_entity_from_handle( entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BaseCombatCharacter", "m_hActiveWeapon" ) ) )
+
+	if (globalvars.get_interval_per_tick() * tickbase) > ( weapon:get_prop_float( se.get_netvar("DT_BaseCombatWeapon", "m_flNextPrimaryAttack") ) + 0.4 ) then
+		return armor > 55 and 34 or 40
+	end
+
+	return armor > 55 and 21 or 25
+
+end
+
+function normalize_angles( angles_var, delta_var )
+	if delta_var.x >= 0 then
+		angles_var.yaw = angles_var.yaw + 180
+	end
+
+	if angles_var.yaw <= -180 then
+        angles_var.yaw = angles_var.yaw + 360
+    end
+
+    if angles_var.yaw >= 180 then
+		angles_var.yaw = angles_var.yaw - 360
+    end
+end
+
+function calculate_angles( start, to )
+	
+	local new_angles_var = angle_t.new(0,0,0)
+	
+	local delta_between_positions = vec3_t.new(start.x - to.x, start.y - to.y, start.z - to.z)
+	local calculate_position = math.sqrt(delta_between_positions.x*delta_between_positions.x + delta_between_positions.y*delta_between_positions.y)
+
+	new_angles_var.pitch = math.atan(delta_between_positions.z / calculate_position) * 180 / math.pi
+	new_angles_var.yaw = math.atan(delta_between_positions.y / delta_between_positions.x) * 180 / math.pi
+	new_angles_var.roll = 0
+
+	normalize_angles( new_angles_var, delta_between_positions )
+
+	return new_angles_var
+
+end
+
+function has_bit(x, p) return x % (p + p) >= p end
+function set_bit(x, p) return has_bit(x, p) and x or x + p end
 --=========================================================================================================================
 
 
 --RAGE
 --=========================================================================================================================
+function on_knife_bot(cmd)
+if knife_bot:get_value() == true then 
+	if (not GetWeaponData(entitylist.get_entity_from_handle( entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BaseCombatCharacter", "m_hActiveWeapon" ) ) )).iType == 0) then
+		return
+	end
 
+	local current_player = entitylist.get_entity_by_index( get_player(  ) )
+
+	local local_origin = entitylist.get_local_player():get_prop_vector(se.get_netvar("DT_BaseEntity", "m_vecOrigin"))
+	local player_origin = current_player:get_prop_vector( se.get_netvar( "DT_BaseEntity", "m_vecOrigin" ) )
+
+	local current_dist = vec3_t.new( local_origin.x - player_origin.x, local_origin.y - player_origin.y, local_origin.z - player_origin.z ):length()
+	local current_angles = calculate_angles(local_origin, player_origin)
+
+	if math.floor(current_dist) <= get_dist( current_player ) then
+	    cmd.viewangles = current_angles
+	    cmd.buttons = set_bit(cmd.buttons, get_attack( current_player ))
+	end
+end
+end 
+client.register_callback( "create_move", on_knife_bot) 
+function jump_scout()
+    if jump_scout:get_value() == true then
+    local player = entitylist.get_entity_by_index(engine.get_local_player())
+    
+    if player then
+        velocity = math.sqrt(player:get_prop_float(m_vecVelocity[0]) ^ 2 + player:get_prop_float(m_vecVelocity[1]) ^ 2)
+    end
+
+    if velocity ~= nil then
+        if velocity > 5 then
+            ui.set_bool("misc_autostrafer", true)
+        else
+            ui.set_bool("misc_autostrafer", false)
+        end
+    end
+end
+end
+
+client.register_callback("paint", jump_scout)
 
 function on_dmg_override()
     override = {
@@ -410,11 +594,6 @@ function on_scout_boost(cmd)
     end
 end
 
-local velocity = nil
-local m_vecVelocity = {
-    [0] = se.get_netvar("DT_BasePlayer", "m_vecVelocity[0]"),
-    [1] = se.get_netvar("DT_BasePlayer", "m_vecVelocity[1]")
-}
 
 local function low_speed(cmd)
 
@@ -890,6 +1069,37 @@ client.register_callback("unload", on_unload_on_at_targets_only_in_air)
 
 --VISUALS
 --=========================================================================================================================
+local function for_scope_transparent()
+    local me = entitylist.get_local_player()
+
+    if not me or not me:is_alive() then
+        return
+    end
+    if scope_transparent:getvalue() == true then
+        if me:get_prop_bool(m_bIsScoped) then
+            local alpha = clamp(math.floor(255 / 100 * (100 - transparent:get_value()) + 0.5), 1, 255)
+
+            --visuals_models_local_color:set_value(color_t.new(cache.chams.r, cache.chams.g, cache.chams.b, alpha))
+            visuals_models_local_material_color:set_value(color_t.new(cache.material.r, cache.material.g, cache.material.b, alpha))
+        else
+        --visuals_models_local_color:set_value(cache.chams)
+        visuals_models_local_material_color:set_value(cache.material)
+        end
+    end
+end
+
+client.register_callback('create_move', for_scope_transparent)
+client.register_callback('on_unload', function ()
+    --visuals_models_local_color:set_value(cache.chams)
+    visuals_models_local_material_color:set_value(cache.material)
+end)
+--=========================================================================================================================
+client.register_callback("create_move", function()
+if flip_knife:get_value() == true then
+se.get_convar("cl_righthand"):set_int(is_knife() and 0 or 1)
+end
+end)
+
 indicators_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
 function on_indicators()
     screen = engine.get_screen_size()
