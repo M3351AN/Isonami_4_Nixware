@@ -42,14 +42,14 @@ local exploit_hide_shots = ui.add_key_bind("exploit hide shots", "exploit_hide_s
 local exploit_doubletap = ui.add_key_bind("exploit doubletap", "exploit_doubletap", 0, 2)
 
 local scout_boost = ui.add_key_bind("scout boost", "scout_boost", 0, 1)
-local boost_min = ui.add_slider_int("min HC", "min_HC", 0, 100, 50)
-local boost_min = ui.add_slider_int("high velocity HC", "high_HC", 0, 100, 50)
-local boost_min = ui.add_slider_int("low velocity HC", "low_HC", 0, 100, 50)
+--local boost_min = ui.add_slider_int("min HC", "min_HC", 0, 100, 50)
+local boost_high = ui.add_slider_int("high velocity HC", "high_HC", 0, 100, 50)
+local boost_low = ui.add_slider_int("low velocity HC", "low_HC", 0, 100, 50)
 local boost_max = ui.add_slider_int("max HC", "max_HC", 0, 100, 75)
 
-local ping_spike = ui.add_key_bind("ping spike", "ping_spike", 0, 1)
-local boost_min = ui.add_slider_int("min PS", "min_PS", 0, 200, 50)
-local boost_max = ui.add_slider_int("max PS", "max_PS", 0, 200, 75)
+local ping_spike = ui.add_key_bind("ping spike on key", "ping_spike", 0, 1)
+local ping_spike_a = ui.add_slider_int("ovr. ping spike", "PS_a", 0, 200, 50)
+local ping_spike_b = ui.add_slider_int("def. ping spike", "PS_b", 0, 200, 50)
 
 
 
@@ -210,6 +210,7 @@ local function on_move(cmd)
 end
 
 function on_scout_boost(cmd)  
+
     if switch0 then
         switch0 = false
     else
@@ -219,7 +220,7 @@ function on_scout_boost(cmd)
     if switch0 then
         local Scout_HC = ui.get_slider_int("rage_scout_hitchance"):set_value(min)
     else
-        local Scout_HC = ui.get_slider_int("rage_scout_hitchance"):set_value(max_HC)
+        local Scout_HC = ui.get_slider_int("rage_scout_hitchance"):set_value(boost_max:get_value())
     end
 end
 
@@ -230,6 +231,9 @@ local m_vecVelocity = {
 }
 
 local function low_speed(cmd)
+
+
+
     local player = entitylist.get_entity_by_index(engine.get_local_player())
     
     if player then
@@ -238,9 +242,9 @@ local function low_speed(cmd)
 
     if velocity ~= nil then
         if velocity > 15 then
-	min=high_HC
+	min = boost_high:get_value()
         else
-	min=low_HC
+	min = boost_low:get_value()
         end
     end
 end
@@ -251,21 +255,14 @@ client.register_callback("create_move", on_scout_boost)
 
 --=========================================================================================================================
 function on_ping_spike(cmd)
-    if ping_spike:is_active() then
-        if switch1 then
-            switch1 = false
-        else
-             switch1 = true
-        end
+
     
-        if switch1 then
-            local flip_PS = ui.get_slider_int("misc_ping_spike_amount"):set_value(max_PS)
-        else
-            local flip_PS = ui.get_slider_int("misc_ping_spike_amount"):set_value(min_PS)
-        end      
-        
-        	
-    end
+    if ping_spike:is_active() then
+         
+        ui.get_slider_int("misc_ping_spike_amount"):set_value(ping_spike_a:get_value())
+	else
+	ui.get_slider_int("misc_ping_spike_amount"):set_value(ping_spike_b:get_value())	
+	end
 end
 client.register_callback("create_move", on_ping_spike)
 
@@ -420,7 +417,7 @@ client.register_callback("unload", on_unload_on_at_targets_only_in_air)
 
 --VISUALS
 --=========================================================================================================================
-indicators_font = renderer.setup_font("C:/windows/fonts/verdana.ttf", 12, 0)
+indicators_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
 function on_indicators()
     screen = engine.get_screen_size()
 
@@ -441,33 +438,33 @@ function on_indicators()
         end
 
         if is_fake_duck:is_active() then
-            renderer.text('FD', indicators_font, vec2_t.new(screen.x / 2 - 7, screen.y / 2 + 30), 12, color_t.new(200, 190, 190, 255))
+            renderer.text('FD', indicators_font, vec2_t.new(screen.x / 2 - 7, screen.y / 2 + 30), 18, color_t.new(200, 190, 190, 255))
         end
 
         if not dmg_override:is_active() then
-            renderer.text('DMG', indicators_font, vec2_t.new(screen.x / 2 - 12, screen.y / 2 + 40), 12, color_t.new(180, 180, 180, 255))
+            renderer.text('DMG', indicators_font, vec2_t.new(screen.x / 2 - 12, screen.y / 2 + 40), 18, color_t.new(180, 180, 180, 255))
         else
-            renderer.text('DMG', indicators_font, vec2_t.new(screen.x / 2 - 12, screen.y / 2 + 40), 12, color_t.new(180, 160, 0, 255))
+            renderer.text('DMG', indicators_font, vec2_t.new(screen.x / 2 - 12, screen.y / 2 + 40), 18, color_t.new(180, 160, 0, 255))
         end
 
-        renderer.text('ISONAMI', indicators_font, vec2_t.new(screen.x / 2 - 23, screen.y / 2 + 50), 12, color_t.new(105, 115, 175, 255))
+        renderer.text('ISONAMI', indicators_font, vec2_t.new(screen.x / 2 - 23, screen.y / 2 + 50), 18, color_t.new(105, 115, 175, 255))
 
         if legit_aa:is_active() then
-            renderer.text('AA LEGIT', indicators_font, vec2_t.new(screen.x / 2 - 23, screen.y / 2 + 60), 12, color_t.new(255, 255, 255, 255))
+            renderer.text('AA LEGIT', indicators_font, vec2_t.new(screen.x / 2 - 23, screen.y / 2 + 60), 18, color_t.new(255, 255, 255, 255))
         elseif is_desync_length:get_value() < 23 then
-            renderer.text('LOW DELTA', indicators_font, vec2_t.new(screen.x / 2 - 30, screen.y / 2 + 60), 12, color_t.new(200, 120, 130, 255))
+            renderer.text('LOW DELTA', indicators_font, vec2_t.new(screen.x / 2 - 30, screen.y / 2 + 60), 18, color_t.new(200, 120, 130, 255))
         elseif is_inverted:is_active() then
-            renderer.text('RIGHT', indicators_font, vec2_t.new(screen.x / 2 - 16, screen.y / 2 + 60), 12, color_t.new(160, 160, 195, 255))
+            renderer.text('RIGHT', indicators_font, vec2_t.new(screen.x / 2 - 16, screen.y / 2 + 60), 18, color_t.new(160, 160, 195, 255))
         else
-            renderer.text('LEFT', indicators_font, vec2_t.new(screen.x / 2 - 12, screen.y / 2 + 60), 12, color_t.new(160, 160, 195, 255))
+            renderer.text('LEFT', indicators_font, vec2_t.new(screen.x / 2 - 12, screen.y / 2 + 60), 18, color_t.new(160, 160, 195, 255))
         end
 
         
 
         if is_exploit_type:get_value() == 2 and is_exploit_bind:is_active() then
-            renderer.text('DT', indicators_font, vec2_t.new(screen.x / 2 - 7, screen.y / 2 + 70), 12, color_t.new(150, 150, 65, 255))
+            renderer.text('DT', indicators_font, vec2_t.new(screen.x / 2 - 7, screen.y / 2 + 70), 18, color_t.new(150, 150, 65, 255))
         elseif is_exploit_type:get_value() == 1 and is_exploit_bind:is_active() then
-            renderer.text('ONSHOT', indicators_font, vec2_t.new(screen.x / 2 - 22, screen.y / 2 + 70), 12, color_t.new(150, 150, 65, 255))
+            renderer.text('ONSHOT', indicators_font, vec2_t.new(screen.x / 2 - 22, screen.y / 2 + 70), 18, color_t.new(150, 150, 65, 255))
         end
     end
 end
@@ -504,24 +501,24 @@ client.register_callback("unload", on_unload_thirdperson_distance)
 
 
 --=========================================================================================================================
-watermark_font = renderer.setup_font("C:/windows/fonts/verdana.ttf", 13, 0)
+watermark_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
 function on_watermark()
     ping = se.get_latency()
     text = "teiku.moe | isonami | ping " .. ping .. "ms" 
-    text_size = renderer.get_text_size(watermark_font, 13, text)
+    text_size = renderer.get_text_size(watermark_font, 18, text)
     x = watermark_x:get_value()
     y = watermark_y:get_value()
 
     if watermark:get_value() then
         renderer.rect_filled(vec2_t.new(x + 226, y + 2), vec2_t.new(x, y + 1), color_t.new(130, 255, 80, 255))
-        renderer.text(text, watermark_font, vec2_t.new(x + 5, y + 5), 13, color_t.new(220, 220, 220, 255))
+        renderer.text(text, watermark_font, vec2_t.new(x + 5, y + 5), 18, color_t.new(220, 220, 220, 255))
     end
 end
 client.register_callback("paint", on_watermark)
 
 
 --=========================================================================================================================
-hotkey_binds_font = renderer.setup_font("C:/windows/fonts/verdana.ttf", 13, 0)
+hotkey_binds_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
 type = { "always", "holding", "toggled", "disable" }
 functions = {
 ["Slowwalk breaker"] = {reference = ui.get_key_bind("slowwalk_breaker")},
@@ -561,10 +558,10 @@ function on_hotkey_binds()
             f = functions[k]
             state = "["..type[f.reference:get_type() + 1].."]"
             renderer.rect_filled(vec2_t.new(x + 190, y + 2), vec2_t.new(x, y + 1), color_t.new(130, 255, 80, 255))
-            renderer.text(text, hotkey_binds_font, vec2_t.new(x + 5, y + 5), 13, color_t.new(220, 220, 220, 255))
+            renderer.text(text, hotkey_binds_font, vec2_t.new(x + 5, y + 5), 18, color_t.new(220, 220, 220, 255))
 
-            renderer.text(k, hotkey_binds_font, vec2_t.new(x + 10, y + 5 + (18 * add)), 13, color_t.new(255, 255, 255, 255))
-            renderer.text(state, hotkey_binds_font, vec2_t.new(x + 150 - renderer.get_text_size(hotkey_binds_font, 12, state).x + 30, y + 5 + (18 * add)), 13, color_t.new(255, 255, 255, 255))
+            renderer.text(k, hotkey_binds_font, vec2_t.new(x + 10, y + 5 + (18 * add)), 18, color_t.new(255, 255, 255, 255))
+            renderer.text(state, hotkey_binds_font, vec2_t.new(x + 150 - renderer.get_text_size(hotkey_binds_font, 12, state).x + 30, y + 5 + (18 * add)), 18, color_t.new(255, 255, 255, 255))
         end
     end
 end
