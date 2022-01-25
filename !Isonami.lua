@@ -809,6 +809,7 @@ client.register_callback("unload", on_unload_thirdperson_distance)
 
 --=========================================================================================================================
 watermark_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
+write_font = renderer.setup_font("C:/windows/fonts/segoescb.ttf", 18, 0)
 function on_watermark()
     ping = se.get_latency()
     text = "teiku.moe | isonami | ".. username .." | ping " .. ping .. "ms" 
@@ -823,60 +824,33 @@ function on_watermark()
 end
 client.register_callback("paint", on_watermark)
 
-local screen = engine.get_screen_size()
-local pos, pos2 = vec2_t.new(screen.x - 325, 5), vec2_t.new(screen.x - 5, 30)
+
+function new_watermark()
+    local screensize = engine.get_screen_size()
+    if nwatermark:get_value() == true then
+        
+        local time = os.date("%X")
+        local ping = se.get_latency()
+        local text = "            | " .. string.lower(client.get_username()) .. " | " .. ping .. "ms | " .. time 
+        local text2 = "ISONAMI" 
+        local NL = "ISONAMI"
+        local text_size = renderer.get_text_size(watermark_font, 20, text)
+        local text_size2 = renderer.get_text_size(watermark_font, 18, text2)
+        local x = screensize.x - text_size.x - 25
+        local y = 10
+        local h = 20
+        renderer.rect_filled(vec2_t.new(x + 5, y + 10), vec2_t.new(x+text_size.x + 20, 20+h), color_t.new(11, 11, 20, 200))
+
+        renderer.rect_filled(vec2_t.new(x + 5, y + 11), vec2_t.new(x+text_size.x + 20, y+20),color_t.new(11, 11, 20, 255))
 
 
-local pos3, pos4 = vec2_t.new(screen.x - 325, 5), vec2_t.new(screen.x - 5, 30)
+        renderer.text( NL, write_font, vec2_t.new(x+11, y+11), 18, color_t.new(125, 40, 205, 255))
+        renderer.text( text, watermark_font, vec2_t.new(x+17, y+10), 18, color_t.new(255, 255, 255, 255))
+        renderer.text( text2, write_font, vec2_t.new(x+12, y+10), 18, color_t.new(255, 255, 255, 255))
 
-function get_fps()
-    frametime = globalvars.get_frame_time()
-    local fps = math.floor(1000 / (frametime * 1000))
-    if fps < 10 then fps = "   " .. tostring(fps)
-    elseif fps < 100 then fps = "  " .. tostring(fps) end
-    return fps
+    end
 end
-function get_time()
-    local hours, minutes, seconds = client.get_system_time()
-    if hours < 10 then hours = "0" .. tostring(hours) end
-    if minutes < 10 then minutes = "0" .. tostring(minutes) end
-    if seconds < 10 then seconds = "0" .. tostring(seconds) end
-    return hours .. ":" .. minutes .. ":" .. seconds
-end
-function get_ping()
-    local ping = math.floor(se.get_latency())
-    if ping < 10 then ping = " " .. tostring(ping) end
-    return ping
-end
-
-function get_tickr()
-    local tickr = 1.0 / globalvars.get_interval_per_tick()
-    return tickr
-end
-
-function draw_watermark()
-if nwatermark:get_value() == true then
-    renderer.filled_polygon({ vec2_t.new(screen.x - 360, 6), vec2_t.new(screen.x - 325, 30), vec2_t.new(screen.x - 325, 6) }, color_t.new(30,30,30,255)) --0 25 25
-    local inner_pos1, inner_pos2 = vec2_t.new(screen.x - 300, 15), vec2_t.new(screen.x - 100, 65)
-    renderer.rect_filled(pos, pos2, color_t.new(30,30,30,255))
-	
-  --renderer.rect(pos, pos2, color_t.new(15,15,15,255)) --отрисовка говна рамки
-  --renderer.rect_filled(inner_pos1, inner_pos2, color_t.new(20,20,20,255))
-  --renderer.rect(inner_pos1, inner_pos2, color_t.new(15,15,15,255))
-  
-    local fpos1, fpos2 = vec2_t.new(screen.x - 360, 3), vec2_t.new(screen.x - 5, 6) -- отрисовка разно цеветной линии
-    renderer.rect_filled_fade(fpos1, fpos2, color_t.new(243, 0, 255, 255), color_t.new(255, 243, 77, 255), color_t.new(255, 243, 77, 255), color_t.new(243, 0, 255, 255))
-	
-  --local npos, nposs = vec2_t.new(screen.x - 160, 17), vec2_t.new(screen.x - 159, 18) --отрисовка тега чита
-  --renderer.text("NIXWARE", verdana, nposs, 13, color_t.new(0, 0, 0, 255))
-  --renderer.text("NIXWARE", verdana, npos, 13, color_t.new(255, 255, 255, 255))
-  
-    local fpos = vec2_t.new(screen.x - 325, 10) --корды отрисовки текста
-    renderer.text("Isonami | ".. username .." | ".. get_time() ..  " | PING: " .. get_ping() .. " | FPS:" .. get_fps(), watermark_font, fpos, 18, color_t.new(255, 255, 255, 255))
-	end
-end
- 
-client.register_callback("paint", draw_watermark)
+client.register_callback("paint", new_watermark)
 --=========================================================================================================================
 hotkey_binds_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
 type = { "always", "holding", "toggled", "disable" }
