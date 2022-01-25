@@ -6,9 +6,43 @@ function on_credit()
 end
 client.register_callback("round_start", on_credit)
 --=========================================================================================================================
+bit32 = require("bit32")
 ffi = require 'ffi'
 ffi.cdef[[
     typedef uintptr_t (__thiscall* GetClientEntity_4242425_t)(void*, int);
+
+    struct WeaponInfo_t
+    {
+        char _0x0000[20];
+        __int32 max_clip;    
+        char _0x0018[12];
+        __int32 max_reserved_ammo;
+        char _0x0028[96];
+        char* hud_name;            
+        char* weapon_name;        
+        char _0x0090[60];
+        __int32 type;            
+        __int32 price;            
+        __int32 reward;            
+        char _0x00D8[20];
+        bool full_auto;        
+        char _0x00ED[3];
+        __int32 damage;            
+        float armor_ratio;         
+        __int32 bullets;    
+        float penetration;    
+        char _0x0100[8];
+        float range;            
+        float range_modifier;    
+        char _0x0110[16];
+        bool silencer;            
+        char _0x0121[15];
+        float max_speed;        
+        float max_speed_alt;
+        char _0x0138[76];
+        __int32 recoil_seed;
+        char _0x0188[32];
+    };
 ]]
 
 ENTITY_LIST_POINTER = ffi.cast("void***", se.create_interface("client.dll", "VClientEntityList003")) or error("Failed to find VClientEntityList003!")
@@ -60,6 +94,9 @@ local fast_filp = ui.add_check_box("desync fast filp", "fast_filp", false)
 
 local legit_aa = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
 
+local add_jitter = ui.add_check_box("add jitter(test)", "add_jitter", false)
+local jitter_angle = ui.add_slider_int("jitter angle", "jitter_angle", 0, 60, 0)
+
 local low_delta_on_slowwalk = ui.add_check_box("low delta on slowwalk", "low_delta_on_slowwalk", false)
 local low_delta_angle = ui.add_slider_int("low delta angle", "low_delta_angle", 0, 60, 0)
 
@@ -97,6 +134,25 @@ local m_iHealth = se.get_netvar("DT_BasePlayer", "m_iHealth")
 local m_hGroundEntity = se.get_netvar("DT_BasePlayer", "m_hGroundEntity")
 local m_bSpotted = se.get_netvar("DT_BaseEntity", "m_bSpotted")
 
+local player_shots = {}
+for i = 0, 64 do player_shots[i] = 0.0 end
+
+local players_dormant = {}
+for i = 0, 64 do players_dormant[i] = 0.0 end
+
+local m_vecOrigin = se.get_netvar("DT_BaseEntity", "m_vecOrigin")
+local m_flDuckSpeed = se.get_netvar("DT_BasePlayer", "m_flDuckSpeed");
+local m_flDuckAmount = se.get_netvar("DT_BasePlayer", "m_flDuckAmount");
+local m_vecVelocity = se.get_netvar("DT_BasePlayer", "m_vecVelocity[0]");
+local m_bIsValveDS = se.get_netvar("DT_CSGameRulesProxy", "m_bIsValveDS")
+local m_iTeamNum = se.get_netvar("DT_BaseEntity", "m_iTeamNum")
+local m_fFlags = se.get_netvar("DT_BasePlayer", "m_fFlags")
+local m_flDuckAmount = se.get_netvar("DT_BasePlayer", "m_flDuckAmount")
+local m_vecViewOffset = se.get_netvar("DT_BasePlayer", "m_vecViewOffset[0]")
+local m_iTeamNum = se.get_netvar("DT_BaseEntity", "m_iTeamNum")
+
+
+local sv_maxspeed = se.get_convar("sv_maxspeed")
 
 function hasbit(a, b)
     return a % (b + b) >= b
@@ -269,8 +325,8 @@ client.register_callback("create_move", on_ping_spike)
 
 --RESOLVER
 --=========================================================================================================================
-
-
+--n07h1ng h3r3
+--=========================================================================================================================
 function on_fast_filp(cmd)
     if fast_filp:get_value() == true then
                
@@ -289,6 +345,29 @@ function on_fast_filp(cmd)
 end
 
 client.register_callback("create_move", on_fast_filp)
+
+
+function on_jitter(cmd)
+    if add_jitter:get_value() == true then
+               
+        if switch3 then
+            switch3 = false
+        else
+             switch3 = true
+        end
+    
+        if switch3 then
+            cmd.viewangles.yaw = engine.get_view_angles().yaw
+            cmd.viewangles.yaw = cmd.viewangles.yaw - jitter_angle:get_value()
+        else
+            cmd.viewangles.yaw = engine.get_view_angles().yaw
+            cmd.viewangles.yaw = cmd.viewangles.yaw - jitter_angle:get_value() * -1
+        end
+    end
+end
+
+client.register_callback("create_move", on_jitter)
+
 
 
 --ANTI-AIM
@@ -349,9 +428,8 @@ if slowwalk_breaker:is_active() then
 client.register_callback("paint", on_legit_aa)
 client.register_callback('unload', on_unload_legit_aa)
 client.register_callback("paint", set_speed)
-
-
 --=========================================================================================================================
+
 function on_low_delta_on_slowwalk()
     local_player = entitylist:get_local_player()
 
@@ -369,7 +447,7 @@ function on_low_delta_on_slowwalk()
 
     if is_slowwalk_checkbox:get_value() and is_slowwalk:is_active() and low_delta_on_slowwalk:get_value() then
         is_desync_length:set_value(low_delta_angle:get_value())
-    else
+    else 
         is_desync_length:set_value(59)
     end
 end
