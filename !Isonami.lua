@@ -158,10 +158,13 @@ local yaw_desync = ui.add_slider_int("yaw_desync", "yaw_desync", 0, 60, 0)
 
 local fast_filp = ui.add_check_box("desync fast filp", "fast_filp", false)
 
+local choke_int_slider = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
+local send_int_slider = ui.add_slider_int("send", "send_int", 1, 14, 1)
+
 local legit_aa = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
 
-local add_jitter = ui.add_check_box("add jitter(test)", "add_jitter", false)
-local jitter_angle = ui.add_slider_int("jitter angle", "jitter_angle", 0, 180, 0)
+local add_jitter = ui.add_check_box("add jitter", "add_jitter", false)
+local jitter_angle = ui.add_slider_float("jitter angle", "jitter_angle", 0, 180, 0)
 
 local low_delta_on_slowwalk = ui.add_check_box("low delta on slowwalk", "low_delta_on_slowwalk", false)
 local low_delta_angle = ui.add_slider_int("low delta angle", "low_delta_angle", 0, 60, 0)
@@ -258,6 +261,34 @@ function hasbit(a, b)
 end
 
 local antihit_antiaim_yaw = 0
+
+local cnt = 0
+local choke = 0
+local send = 0
+local ebind = ui.get_key_bind("rage_active_exploit_bind")
+local ebox = ui.get_combo_box("rage_active_exploit")
+local loop = false
+local break_lby = false
+local force_choke = false
+local force_send = true
+local lby_update = 0.0
+local curtime = 0.0
+local lby_delta = 0
+local loop1 = false
+local desync_delta = 0
+local side = 1
+local lby_time = 0.0
+local lby_delta1 = 0
+local lby_update1 = 0.0
+local lby_loop = 0
+local pitch1 = 0
+local yaw1 = 0
+local des1 = 0
+local lby1 = 0
+local lby_sw1 = 0
+
+
+weapon_data_call = ffi.cast("int*(__thiscall*)(void*)", client.find_pattern("client.dll", "55 8B EC 81 EC ? ? ? ? 53 8B D9 56 57 8D 8B ? ? ? ? 85 C9 75 04"));
 --=========================================================================================================================
 
 
@@ -471,6 +502,171 @@ client.register_callback("create_move", on_jitter)
 
 --ANTI-AIM
 --=========================================================================================================================
+
+function weapon_data( weapon )
+    return ffi.cast("struct WeaponInfo_t*", weapon_data_call(ffi.cast("void*", weapon:get_address())));
+end
+
+function is_throwing(  )
+    local active_weapon_throw_time = entitylist.get_entity_from_handle(entitylist.get_local_player():get_prop_int(se.get_netvar("DT_BaseCombatCharacter", "m_hActiveWeapon"))):get_prop_float(se.get_netvar("DT_BaseCSGrenade", "m_fThrowTime"))
+
+    if active_weapon_throw_time > 0.1 then 
+        return true
+    end 
+    
+    return false
+end
+
+function is_nade(  )
+
+    local weapon = entitylist.get_entity_from_handle(entitylist.get_local_player():get_prop_int(se.get_netvar("DT_BaseCombatCharacter", "m_hActiveWeapon")))
+
+    if weapon_data(weapon).type == 0 then
+        return true
+    end
+
+    return false
+
+end
+
+function is_knife(  )
+    
+    local weapon = entitylist.get_entity_from_handle(entitylist.get_local_player():get_prop_int(se.get_netvar("DT_BaseCombatCharacter", "m_hActiveWeapon")))
+
+    if weapon_data(weapon).type == 1 then
+        return true
+    end
+
+    return false
+
+end
+
+local function hasbit(x, p) return x % (p + p) >= p end
+
+local function checks(pCmd)
+
+    local netMoveType = se.get_netvar("DT_BaseEntity", "m_nRenderMode") + 1
+    local move_type = entitylist.get_local_player():get_prop_int(netMoveType)
+
+    if move_type == 8 or move_type == 9 then
+        return true
+    end
+
+    if hasbit(pCmd.buttons, bit32.lshift(1, 0)) then
+        return true
+    end
+
+    if hasbit(pCmd.buttons, bit32.lshift(1, 5)) and not e_legit_checkbox:get_value() then
+        return true
+    end
+
+    if is_nade( ) and is_throwing( ) and not is_knife( ) then
+        return true
+    end
+end
+
+local function sidemoves(pCmd)
+    if math.abs(pCmd.sidemove) < 4 then
+        if pCmd.command_number % 2 == 1 then
+            pCmd.sidemove = client.is_key_pressed(17) and 3.01 or 1.01 + pCmd.sidemove
+        else
+            pCmd.sidemove = client.is_key_pressed(17) and -3.01 or -1.01 + pCmd.sidemove 
+        end
+    end
+end    
+
+
+local function do_lby(pCmd)
+    if checks(pCmd) then return end
+
+    side = inverter_bind:is_active() and 1 or -1
+
+    curtime = globalvars.get_current_time()
+
+    if e_legit_checkbox:get_value() and hasbit(pCmd.buttons, bit32.lshift(1, 5)) then
+        if lby_combo:get_value() == 1 then
+            lby1 = 180
+        elseif lby_combo:get_value() == 2 then    
+            lby1 = 140
+        end    
+        lby_sw1 = 80
+    else
+        lby1 = 120
+        lby_sw1 = 20
+    end
+
+    if lby_combo:get_value() == 1 then
+        lby_delta1 = lby1
+    elseif lby_combo:get_value() == 2 then
+        if curtime > lby_update1 then
+            lby_update1 = curtime + 1.1
+
+            if lby_loop then
+                lby_delta1 = lby1
+                lby_loop = false
+            else
+                lby_loop = true
+                lby_delta1 = -lby_sw1
+            end
+        end
+    end               
+            
+    lby_delta = -side * lby_delta1
+
+    if ebind:is_active() and ebox:get_value() > 0 then
+        lby_time = 1.1
+    else
+        lby_time = 0.22
+    end
+            
+    if curtime > lby_update and lby_combo:get_value() > 0 then
+        lby_update = curtime + lby_time
+        break_lby = true
+        pCmd.send_packet = false
+        force_choke = true
+        pCmd.viewangles.yaw = pCmd.viewangles.yaw + lby_delta
+        sidemoves(pCmd)
+        return
+    else
+        if lby_combo:get_value() == 0 then
+            sidemoves(pCmd)
+        end    
+        break_lby = false
+    end
+end
+
+local function fakelags(pCmd)
+    if clientstate.get_choked_commands() > 12 then return end
+
+    if ebind:is_active() and ebox:get_value() > 0 then
+        choke = 1
+        send = choke + 2
+    else
+        choke = choke_int_slider:get_value()
+        send = choke + send_int_slider:get_value()
+    end
+
+    cnt = cnt + 1
+
+    if cnt > 0 and cnt <= choke then
+        force_choke = true
+        force_send = false
+    elseif cnt > choke and cnt <= send then
+        force_send = break_lby and false or true
+        force_choke = break_lby and true or false
+    elseif cnt > send then
+        cnt = 0
+    end
+
+    if force_choke or break_lby then
+        pCmd.send_packet = false
+    elseif force_send then
+        pCmd.send_packet = true
+    end                
+end
+
+client.register_callback("create_move", fakelags)
+--=========================================================================================================================
 local function get_antihit_antiaim_yaw()
     if client.is_key_clicked(antihit_antiaim_left:get_key()) then
         if antihit_antiaim_yaw == 1 then
@@ -588,7 +784,7 @@ if leg_fucker:get_value() == true then
         if clientstate.get_choked_commands() == 0 then
             antihit_extra_leg_movement:set_value(2)
         else
-            antihit_extra_leg_movement:set_value(1)
+            antihit_extra_leg_movement:set_value(0)
         end
 
 end
