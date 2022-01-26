@@ -1,6 +1,7 @@
 local username = client.get_username()
 client.notify("Salut ".. username ..", welcome use Isonami.")
 client.notify("Isonamiv1 by M3351AN#7417 A.K.A. Teikumo.")
+ui.add_slider_int("                 [ISONAMI]", "text1", 0, 3351, 3351)
 local github = ui.add_check_box("go to github", "github", false)
 local function on_github()
     if github:get_value() == true then
