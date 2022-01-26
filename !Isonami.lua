@@ -224,6 +224,7 @@ local sta_leg = ui.add_check_box("static leg", "sta_leg", false)
 local molo_color = ui.add_color_edit("MolotovRadius", "molo_color", true, color_t.new(255, 255, 255, 255))
 local indicators = ui.add_check_box("indicators", "indicators", false)
 local scope_transparent = ui.add_check_box("scope transparent(require update)", "scope_transparent", false)
+local transparent = ui.add_slider_int('transparent in scope', 'vis_transparent_in_scope', 1, 100, 75)
 local radar_hack = ui.add_check_box("radar hack", "radar_hack", false)
 local flip_knife = ui.add_check_box("flip knife hand", "flip_knife", false)
 local logs = ui.add_check_box("logs", "logs", false)
@@ -244,7 +245,8 @@ local hotkey_binds_y = ui.add_slider_int("hotkey_binds_y", "hotkey_binds_y", 0, 
 local ragdoll = ui.add_check_box("ragdoll gravity", "ragdoll", false)
 local kill_say =  ui.add_check_box("kill say", "kill_say", false)
 local knife_bot = ui.add_check_box("knife bot", "knife_bot", false)
-
+local fps_boost = ui.add_check_box("fps boost", "fps_boost", false)
+local clean_blood = ui.add_key_bind("clean blood", "clean_blood", 0, 1)
 --netvar and function
 --=========================================================================================================================
 
@@ -344,7 +346,7 @@ local cache = {
     material = visuals_models_local_material_color:get_value()
 }
 
-local transparent = ui.add_slider_int('transparent in scope', 'vis_transparent_in_scope', 1, 100, 75)
+
 
 local function clamp(val, min, max)
     if val > max then return max end
@@ -1731,3 +1733,70 @@ client.register_callback("player_death", on_kill_say)
 
 
 --=========================================================================================================================
+local function print_fps()
+    if fps_boost:get_value() == true then
+    se.get_convar("r_3dsky"):set_int(0)
+    se.get_convar("r_shadows"):set_int(0)
+    se.get_convar("cl_csm_static_prop_shadows"):set_int(0)
+    se.get_convar("cl_csm_shadows"):set_int(0)
+    se.get_convar("cl_csm_world_shadows"):set_int(0)
+    se.get_convar("cl_foot_contact_shadows"):set_int(0)
+    se.get_convar("cl_csm_viewmodel_shadows"):set_int(0)
+    se.get_convar("cl_csm_rope_shadows"):set_int(0)
+    se.get_convar("cl_csm_sprite_shadows"):set_int(0)
+    se.get_convar("cl_disablefreezecam"):set_int(1)
+    se.get_convar("cl_freezecampanel_position_dynamic"):set_int(0)
+    se.get_convar("cl_freezecameffects_showholiday"):set_int(0)
+    se.get_convar("cl_showhelp"):set_int(0)
+    se.get_convar("cl_autohelp"):set_int(0)
+    se.get_convar("cl_disablehtmlmotd"):set_int(1)
+    se.get_convar("mat_postprocess_enable"):set_int(0)
+    se.get_convar("fog_enable_water_fog"):set_int(0)
+    se.get_convar("gameinstructor_enable"):set_int(0)
+    se.get_convar("cl_csm_world_shadows_in_viewmodelcascade"):set_int(0)
+    se.get_convar("cl_disable_ragdolls"):set_int(1)
+    else
+    se.get_convar("r_3dsky"):set_int(1)
+    se.get_convar("cl_csm_static_prop_shadows"):set_int(1)
+    se.get_convar("cl_csm_shadows"):set_int(1)
+    se.get_convar("cl_csm_world_shadows"):set_int(1)
+    se.get_convar("cl_foot_contact_shadows"):set_int(0)
+    se.get_convar("cl_csm_viewmodel_shadows"):set_int(1)
+    se.get_convar("cl_csm_rope_shadows"):set_int(1)
+    se.get_convar("cl_csm_sprite_shadows"):set_int(1)
+    se.get_convar("cl_disablefreezecam"):set_int(1)
+    se.get_convar("cl_freezecampanel_position_dynamic"):set_int(0)
+    se.get_convar("cl_freezecameffects_showholiday"):set_int(0)
+    se.get_convar("mat_postprocess_enable"):set_int(1)
+    se.get_convar("fog_enable_water_fog"):set_int(1)
+    se.get_convar("cl_csm_world_shadows_in_viewmodelcascade"):set_int(1)
+    se.get_convar("cl_disable_ragdolls"):set_int(0)
+    end
+end
+
+client.register_callback("paint", print_fps)
+
+local function on_unload_fps()
+    se.get_convar("r_3dsky"):set_int(1)
+    se.get_convar("cl_csm_static_prop_shadows"):set_int(1)
+    se.get_convar("cl_csm_shadows"):set_int(1)
+    se.get_convar("cl_csm_world_shadows"):set_int(1)
+    se.get_convar("cl_foot_contact_shadows"):set_int(0)
+    se.get_convar("cl_csm_viewmodel_shadows"):set_int(1)
+    se.get_convar("cl_csm_rope_shadows"):set_int(1)
+    se.get_convar("cl_csm_sprite_shadows"):set_int(1)
+    se.get_convar("cl_disablefreezecam"):set_int(1)
+    se.get_convar("cl_freezecampanel_position_dynamic"):set_int(0)
+    se.get_convar("cl_freezecameffects_showholiday"):set_int(0)
+    se.get_convar("mat_postprocess_enable"):set_int(1)
+    se.get_convar("fog_enable_water_fog"):set_int(1)
+    se.get_convar("cl_csm_world_shadows_in_viewmodelcascade"):set_int(1)
+    se.get_convar("cl_disable_ragdolls"):set_int(0)
+end
+client.register_callback("unload", on_unload_fps)
+function on_clean_blood()
+    if clean_blood:is_active() == true then
+        engine.execute_client_cmd("r_cleardecals")
+    end
+end
+client.register_callback("create_move", on_clean_blood)
