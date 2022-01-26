@@ -1,6 +1,14 @@
 local username = client.get_username()
 client.notify("Salut ".. username ..", welcome use Isonami.")
 client.notify("Isonamiv1 by M3351AN#7417 A.K.A. Teikumo.")
+local github = ui.add_check_box("go to github", "github", false)
+local function on_github()
+    if github:get_value() == true then
+        os.execute ("start https://github.com/M3351AN/Isonami_4_Nixware")
+        github:set_value(false)
+    end
+end
+client.register_callback('paint', on_github)
 function on_credit()
     client.notify("You are using Isonami via teiku.moe.")
 end
@@ -9,6 +17,7 @@ client.register_callback("round_start", on_credit)
 bit32 = require("bit32")
 ffi = require 'ffi'
 ffi.cdef[[
+
     typedef uintptr_t (__thiscall* GetClientEntity_4242425_t)(void*, int);
 
     typedef struct
@@ -160,7 +169,7 @@ local antihit_antiaim_right = ui.add_key_bind("Right", "antihit_antiaim_right", 
 
 local yaw_desync = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
 
-local fast_filp = ui.add_check_box("desync fast filp", "fast_filp", false)
+local fast_filp = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" }, 0)
 
 local choke_int_slider = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
 local send_int_slider = ui.add_slider_int("send", "send_int", 1, 14, 1)
@@ -438,6 +447,7 @@ function has_bit(x, p) return x % (p + p) >= p end
 function set_bit(x, p) return has_bit(x, p) and x or x + p end
 
 function GetWeaponData( weapon ) return ffi.cast("struct WeaponInfo_t*", weapon_data_call(ffi.cast("void*", weapon:get_address()))) end
+
 --=========================================================================================================================
 
 
@@ -643,20 +653,29 @@ client.register_callback("create_move", on_ping_spike)
 --n07h1ng h3r3
 --=========================================================================================================================
 function on_fast_filp(cmd)
-    if fast_filp:get_value() == true then
-               
+    local num = math.random(0,2)
+    if fast_filp:get_value() == 1 then
+        
+        if num == 1 then
+            local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
+            
+        else
+            local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
+        
+        end
+    elseif fast_filp:get_value() == 2 then
         if switch2 then
             switch2 = false
         else
-             switch2 = true
+            switch2 = true
         end
-    
+
         if switch2 then
             local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
         else
             local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
         end
-    end
+    end 
 end
 
 client.register_callback("create_move", on_fast_filp)
@@ -1075,6 +1094,13 @@ client.register_callback("unload", on_unload_on_at_targets_only_in_air)
 
 --VISUALS
 --=========================================================================================================================
+local function log()
+    if logs:get_value() == true then
+        logs:set_value(false)
+    end
+end
+client.register_callback('paint', log)
+
 local function for_scope_transparent()
     local me = entitylist.get_local_player()
 
