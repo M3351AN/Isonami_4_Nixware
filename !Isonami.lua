@@ -17,6 +17,7 @@ client.register_callback("round_start", on_credit)
 bit32 = require("bit32")
 ffi = require 'ffi'
 ffi.cdef[[
+    struct c_color { unsigned char clr[4]; };
 
     typedef uintptr_t (__thiscall* GetClientEntity_4242425_t)(void*, int);
 
@@ -196,7 +197,7 @@ local indicators = ui.add_check_box("indicators", "indicators", false)
 local scope_transparent = ui.add_check_box("scope transparent(require update)", "scope_transparent", false)
 local radar_hack = ui.add_check_box("radar hack", "radar_hack", false)
 local flip_knife = ui.add_check_box("flip knife hand", "flip_knife", false)
-local logs = ui.add_check_box("logs (soon)", "logs", false)
+local logs = ui.add_check_box("logs", "logs", false)
 local is_heart_enabled = ui.add_check_box('heartmarkers', 'vis_heartmarkers_enable', false)
 local is_heart_colored = ui.add_check_box('colored', 'vis_heartmarkers_colored', false)
 local thirdperson_distance = ui.add_slider_int("thirdperson distance value", "thirdperson_distance", 0, 200, 150)
@@ -322,8 +323,8 @@ local function clamp(val, min, max)
     return val
 end
 
-weapon_data_call = ffi.cast("int*(__thiscall*)(void*)", client.find_pattern("client.dll", "55 8B EC 81 EC ? ? ? ? 53 8B D9 56 57 8D 8B ? ? ? ? 85 C9 75 04"));
-
+--weapon_data_call = ffi.cast("int*(__thiscall*)(void*)", client.find_pattern("client.dll", "55 8B EC 81 EC ? ? ? ? 53 8B D9 56 57 8D 8B ? ? ? ? 85 C9 75 04"));
+local weapon_data_call = ffi.cast("int*(__thiscall*)(void*)", client.find_pattern("client.dll", "55 8B EC 81 EC 0C 01 ? ? 53 8B D9 56 57 8D 8B"));
 local velocity = nil
 local m_vecVelocity = {
     [0] = se.get_netvar("DT_BasePlayer", "m_vecVelocity[0]"),
@@ -454,6 +455,41 @@ function GetWeaponData( weapon ) return ffi.cast("struct WeaponInfo_t*", weapon_
 local function rectangle(x, y, w, h, color)
     renderer.rect_filled(vec2_t.new(x, y), vec2_t.new(x + w, y + h), color_t.new(color[1], color[2], color[3], color[4]))
 end
+
+hitboxes = {
+    "head",
+    "neck",
+    "pelvis",
+    "belly",
+    "thorax",
+    "lower chest",
+    "upper chest",
+    "right thigh",
+    "left thigh",
+    "right calf",
+    "left calf",
+    "right foot",
+    "left foot",
+    "right hand",
+    "left hand",
+    "right upper arm",
+    "right forearm",
+    "left upper arm",
+    "left forearm",
+    "hitbox max"
+}
+
+function get_hitbox(hitbox)
+    return hitboxes[hitbox]
+end
+
+console_color = ffi.new("struct c_color")
+console_color.clr[3] = 255
+updated = false
+messages = {}
+messages.text = ""
+messages.bg_position = 0
+messages.once = true
 --=========================================================================================================================
 
 
@@ -1100,12 +1136,198 @@ client.register_callback("unload", on_unload_on_at_targets_only_in_air)
 
 --VISUALS
 --=========================================================================================================================
-local function log()
-    if logs:get_value() == true then
-        logs:set_value(false)
+
+function fire_log(info)
+    
+if logs:get_value() == true then
+    local shot_result, shot_target, target_hitbox, shot_damage =
+        info.result,
+        info.target,
+        info.hitbox + 1,
+        info.server_damage
+
+    if shot_result == "spread" then
+        local nixware = string.format("[nixware.cc] ")
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+        console_color.clr[0] = 43
+        console_color.clr[1] = 93
+        console_color.clr[2] = 255
+        console_print(engine_cvar, console_color, nixware)
+
+        local temp_name = engine.get_player_info(shot_target:get_index()).name
+        local target_name =
+            string.len(temp_name) > 40 and string.lower(string.sub(temp_name, 0, 40)) .. "..." or
+            string.lower(temp_name)
+
+        local message_text = string.format("missed shot due to spread ", get_hitbox(target_hitbox))
+        local notify_text = client.notify("missed shot due to spread ".. get_hitbox(target_hitbox))
+        local nixware = string.format("[nixware.cc] ")
+
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+        console_color.clr[0] = 200
+        console_color.clr[1] = 0
+        console_color.clr[2] = 0
+        console_print(engine_cvar, console_color, message_text .. "\n")
+    end
+
+    if shot_result == "desync" then
+        local nixware = string.format("[nixware.cc] ")
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+        console_color.clr[0] = 43
+        console_color.clr[1] = 93
+        console_color.clr[2] = 255
+        console_print(engine_cvar, console_color, nixware)
+
+        local temp_name = engine.get_player_info(shot_target:get_index()).name
+        local target_name =
+            string.len(temp_name) > 40 and string.lower(string.sub(temp_name, 0, 40)) .. "..." or
+            string.lower(temp_name)
+
+        local message_text = string.format("missed shot due to resolver ", get_hitbox(target_hitbox))
+        local notify_text = client.notify("missed shot due to resolver ".. get_hitbox(target_hitbox))
+
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+        console_color.clr[0] = 200
+        console_color.clr[1] = 0
+        console_color.clr[2] = 0
+        console_print(engine_cvar, console_color, message_text .. "\n")
+    end
+
+    if shot_result == "unk" then
+        local nixware = string.format("[nixware.cc] ")
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+        console_color.clr[0] = 43
+        console_color.clr[1] = 93
+        console_color.clr[2] = 255
+        console_print(engine_cvar, console_color, nixware)
+
+        local temp_name = engine.get_player_info(shot_target:get_index()).name
+        local target_name =
+            string.len(temp_name) > 40 and string.lower(string.sub(temp_name, 0, 40)) .. "..." or
+            string.lower(temp_name)
+
+        local message_text = string.format("missed shot due to unknown ", get_hitbox(target_hitbox))
+        local notify_text = client.notify("missed shot due to unknown ".. get_hitbox(target_hitbox))
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+        console_color.clr[0] = 200
+        console_color.clr[1] = 0
+        console_color.clr[2] = 0
+        console_print(engine_cvar, console_color, message_text .. "\n")
+    end
+
+    if shot_result == "hit" then
+        local nixware = string.format("[nixware.cc] ")
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+        console_color.clr[0] = 43
+        console_color.clr[1] = 93
+        console_color.clr[2] = 255
+        console_print(engine_cvar, console_color, nixware)
+
+        message_text = string.format("did %d in %s", shot_damage, get_hitbox(target_hitbox))
+        local notify_text = client.notify("did ".. shot_damage .. " in " .. get_hitbox(target_hitbox))
+        console_color = ffi.new("struct c_color")
+        console_color.clr[3] = 255
+        engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+        console_print =
+            ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+        console_color.clr[0] = 0
+        console_color.clr[1] = 200
+        console_color.clr[2] = 0
+        console_print(engine_cvar, console_color, message_text .. "\n")
     end
 end
-client.register_callback('paint', log)
+end
+
+function hurt (event)
+
+if logs:get_value() == true then
+    if event:get_name() == "player_hurt" then
+        local event_player = engine.get_player_for_user_id(event:get_int("userid", -1))
+        local event_attacker = engine.get_player_for_user_id(event:get_int("attacker", -1))
+        local local_player = engine.get_local_player()
+        local event_damage = event:get_int("dmg_health", -1)
+        local event_hitbox = event:get_int("hitgroup", -1)
+
+        if event_player == local_player then
+            local nixware = string.format("[nixware.cc] ")
+            console_color = ffi.new("struct c_color")
+            console_color.clr[3] = 255
+            engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+            console_print =
+                ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+            console_color.clr[0] = 43
+            console_color.clr[1] = 93
+            console_color.clr[2] = 255
+            console_print(engine_cvar, console_color, nixware)
+
+            local temp_name = engine.get_player_info(event_attacker).name
+            local event_name =
+                string.len(temp_name) > 40 and string.lower(string.sub(temp_name, 0, 40)) .. "..." or
+                string.lower(temp_name)
+
+            local message_text =
+                (temp_name == "" and "world" or event_name) ..
+                " did " ..
+                    tostring(event_damage) ..
+                        (temp_name == "" and " to you" or " damage in your " .. get_hitbox(event_hitbox))
+
+            console_color = ffi.new("struct c_color")
+            console_color.clr[3] = 255
+            engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+            console_print =
+                ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+            console_color.clr[0] = 200
+            console_color.clr[1] = 0
+            console_color.clr[2] = 0
+            local notify_text = client.notify(message_text)
+            console_print(engine_cvar, console_color, message_text .. "\n")
+            
+        end
+    end
+end
+end
+
+client.register_callback("fire_game_event",hurt)
+client.register_callback("shot_fired",fire_log)
+
+
 
 local hearts = {}
 local function draw_heart(x, y, color)
@@ -1229,7 +1451,11 @@ end)
 --=========================================================================================================================
 client.register_callback("create_move", function()
 if flip_knife:get_value() == true then
-se.get_convar("cl_righthand"):set_int(is_knife() and 0 or 1)
+    if is_knife() == true then
+        se.get_convar("cl_righthand"):set_int(0)
+    else
+        se.get_convar("cl_righthand"):set_int(1)
+    end
 end
 end)
 
