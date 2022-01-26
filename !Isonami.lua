@@ -1,32 +1,27 @@
---
---                       _oo0oo_
---                      o8888888o
---                      88" . "88
---                      (| -_- |)
---                      0\  =  /0
---                    ___/`---'\___
---                  .' \\|     |# '.
---                 / \\|||  :  |||# \
---                / _||||| -:- |||||- \
---               |   | \\\  -  #/ |   |
---               | \_|  ''\---/''  |_/ |
---               \  .-\__  '-'  ___/-. /
---             ___'. .'  /--.--\  `. .'___
---          ."" '<  `.___\_<|>_/___.' >' "".
---         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
---         \  \ `_.   \_ __\ /__ _/   .-` /  /
---     =====`-.____`.___ \_____/___.-`___.-'=====
---                       `=---='
---
---
---    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
---
---               佛祖保佑         永无BUG
---Author: M3351AN#7417 A.K.A. Teikumo / Crespy / YKK
---
---
-
-
+local ANTIBUG = {
+"\n",
+"                       _oo0oo_\n",
+"                      o8888888o\n",
+"                      88\" . \"88\n",
+"                      (| -_- |)\n",
+"                      0\\  =  /0\n",
+"                    ___/`---\'\\___\n",
+"                  .\' \\\\|     |# \'.\n",
+"                 / \\|||  :  |||# \\\n",
+"                / _||||| -:- |||||- \\\n",
+"               |   | \\\\  -  #/ |   |\n",
+"               | \\_|  \'\'\\---/\'\'  |_/ |\n",
+"               \\  .-\\__  \'-\'  ___/-. /\n",
+"             ___\'. .\'  /--.--\\  `. .\'___\n",
+"          .\"\" *<  `.___\\_<|>_/___.\' >* \"\".\n",
+"         | | :  `- \\`.;`\\ _ /`;.`/ - ` : | |\n",
+"         \\  \\ `_.   \\_ __\\ /__ _/   .-` /  /\n",
+"     =====`-.____`.___ \\_____/___.-`___.-\'=====\n",
+"\n",
+"              佛祖保佑         永无BUG\n",
+"Author: M3351AN#7417 A.K.A. Teikumo / Crespy / YKK\n",
+"\n"
+}--print at console
 
 local username = client.get_username()
 client.notify("Salut ".. username ..", welcome use Isonami.")
@@ -1832,3 +1827,17 @@ function on_clean_blood()
     end
 end
 client.register_callback("create_move", on_clean_blood)
+
+local anti_b = 0
+while anti_b < 21 do
+    anti_b = anti_b +1
+    engine_cvar = ffi.cast("void***", se.create_interface("vstdlib.dll", "VEngineCvar007"))
+    local console_print =
+                ffi.cast("void(__cdecl*)(void*, const struct c_color&, const char*, ...)", engine_cvar[0][25])
+
+            console_color.clr[0] = 200
+            console_color.clr[1] = 0
+            console_color.clr[2] = 0
+            console_color.clr[3] = 255
+    console_print(engine_cvar, console_color, ANTIBUG[anti_b])
+end
