@@ -80,7 +80,38 @@ ffi.cdef[[
         float        flMaxPitch; // 0x33C
         int            iAnimsetVersion; // 0x340
     } CCSGOPlayerAnimationState_534535_t;
-
+    struct Weapon_Info_t
+    {
+      char _0x0000[20];
+      __int32 max_clip;
+      char _0x0018[12];
+      __int32 max_reserved_ammo;
+      char _0x0028[96];
+      char* hud_name;
+      char* weapon_name;
+      char _0x0090[60];
+      __int32 type;
+      __int32 price;
+      __int32 reward;
+      char _0x00D8[20];
+      bool full_auto;
+      char _0x00ED[3];
+      __int32 damage;
+      float armor_ratio;
+      __int32 bullets;
+      float penetration;
+      char _0x0100[8];
+      float range;
+      float range_modifier;
+      char _0x0110[16];
+      bool silencer;
+      char _0x0121[15];
+      float max_speed;
+      float max_speed_alt;
+      char _0x0138[76];
+      __int32 recoil_seed;
+      char _0x0188[32];
+    };
     struct WeaponInfo_t
     {
         char _0x0000[20]; int iMaxClip; char _0x0018[12]; int iMaxReservedAmmo; char _0x0028[96]; char* szHUDName; char* szWeaponName; char _0x0090[60]; int iType; int iPrice; int iReward; char _0x00D8[20]; bool bFullAmmo; char _0x00ED[3]; int iDamage; float flArmorRatio; int iBullets; float flPenetration; char _0x0100[8]; float flRange; float flRangeModifier; char _0x0110[16]; bool bSilencer; char _0x0121[15]; float flMaxSpeed; float flMaxSpeedAlt; char _0x0138[76]; int iRecoilSeed; char _0x0188[32];
@@ -134,8 +165,6 @@ ffi_helpers = {
 --RAGE
 --=========================================================================================================================
 local jump_scout = ui.add_check_box("jump scout", "jump_scout", false)
-
-local knife_bot = ui.add_check_box("knife bot", "knife_bot", false)
 
 local dmg_override = ui.add_key_bind("dmg override", "dmg_override", 0, 1)
 local dmg_override_value = ui.add_slider_int("dmg override value", "dmg_override_value", 1, 120, 1)
@@ -214,7 +243,7 @@ local hotkey_binds_y = ui.add_slider_int("hotkey_binds_y", "hotkey_binds_y", 0, 
 --=========================================================================================================================
 local ragdoll = ui.add_check_box("ragdoll gravity", "ragdoll", false)
 local kill_say =  ui.add_check_box("kill say", "kill_say", false)
-
+local knife_bot = ui.add_check_box("knife bot", "knife_bot", false)
 
 --netvar and function
 --=========================================================================================================================
@@ -750,7 +779,7 @@ client.register_callback("create_move", on_jitter)
 --=========================================================================================================================
 
 function weapon_data( weapon )
-    return ffi.cast("struct WeaponInfo_t*", weapon_data_call(ffi.cast("void*", weapon:get_address())));
+    return ffi.cast("struct Weapon_Info_t*", weapon_data_call(ffi.cast("void*", weapon:get_address())));
 end
 
 function is_throwing(  )
