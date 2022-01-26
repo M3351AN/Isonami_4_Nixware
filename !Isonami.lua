@@ -1,7 +1,38 @@
+--
+--                       _oo0oo_
+--                      o8888888o
+--                      88" . "88
+--                      (| -_- |)
+--                      0\  =  /0
+--                    ___/`---'\___
+--                  .' \\|     |# '.
+--                 / \\|||  :  |||# \
+--                / _||||| -:- |||||- \
+--               |   | \\\  -  #/ |   |
+--               | \_|  ''\---/''  |_/ |
+--               \  .-\__  '-'  ___/-. /
+--             ___'. .'  /--.--\  `. .'___
+--          ."" '<  `.___\_<|>_/___.' >' "".
+--         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+--         \  \ `_.   \_ __\ /__ _/   .-` /  /
+--     =====`-.____`.___ \_____/___.-`___.-'=====
+--                       `=---='
+--
+--
+--    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--
+--               佛祖保佑         永无BUG
+--Author: M3351AN#7417 A.K.A. Teikumo / Crespy / YKK
+--
+--
+
+
+
 local username = client.get_username()
 client.notify("Salut ".. username ..", welcome use Isonami.")
 client.notify("Isonamiv1 by M3351AN#7417 A.K.A. Teikumo.")
-ui.add_slider_int("                 [ISONAMI]", "text1", 0, 3351, 3351)
+ui.add_slider_int("                [ISONAMI]", "isonami", 3351, 3351, 3351)
+ui.add_slider_int("                    by.M3351AN#", "m3351an", 7417, 7417, 7417)
 local github = ui.add_check_box("go to github", "github", false)
 local function on_github()
     if github:get_value() == true then
