@@ -229,7 +229,8 @@ local antihit_antiaim_right = ui.add_key_bind("Right", "antihit_antiaim_right", 
 local as_shot = ui.add_check_box("change yaw as shot", "as_shot", false)
 local yaw_desync = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
 local yaw_desync1 = ui.add_slider_int("shot +-", "yaw_desync1", 0, 60, 0)
-local fast_filp = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" }, 0)
+
+local fast_filp = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" , "spike" }, 0)
 
 local choke_int_slider = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
 local send_int_slider = ui.add_slider_int("send", "send_int", 1, 14, 1)
@@ -767,6 +768,7 @@ client.register_callback("create_move", on_ping_spike)
 --=========================================================================================================================
 --n07h1ng h3r3
 --=========================================================================================================================
+flipt = 0
 function on_fast_filp(cmd)
     local num = math.random(0,2)
     if fast_filp:get_value() == 1 then
@@ -778,6 +780,14 @@ function on_fast_filp(cmd)
             local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
         
         end
+    elseif fast_filp:get_value() == 3 then
+        flipt = flipt + 1
+    if flipt > 16 then
+        flipt = 0
+        local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
+    else
+        local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
+    end
     elseif fast_filp:get_value() == 2 then
         if switch2 then
             switch2 = false
