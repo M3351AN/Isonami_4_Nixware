@@ -224,8 +224,11 @@ local antihit_antiaim_left = ui.add_key_bind("Left", "antihit_antiaim_left", 0, 
 local antihit_antiaim_backwards = ui.add_key_bind("Backwards", "antihit_antiaim_backwards", 0, 2)
 local antihit_antiaim_right = ui.add_key_bind("Right", "antihit_antiaim_right", 0, 2)
 
-local yaw_desync = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
 
+
+local as_shot = ui.add_check_box("change yaw as shot", "as_shot", false)
+local yaw_desync = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
+local yaw_desync1 = ui.add_slider_int("shot +-", "yaw_desync1", 0, 60, 0)
 local fast_filp = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" }, 0)
 
 local choke_int_slider = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
@@ -733,7 +736,19 @@ end
 client.register_callback("create_move", low_speed)
 client.register_callback("create_move", on_move)
 client.register_callback("create_move", on_scout_boost)
-
+local shott = 0
+function shot_change (e)
+shott = shott + 1
+if as_shot:get_value() == true then
+    local index = shott % 2
+    if index == 0 then
+        yaw_desync:set_value(yaw_desync:get_value() + yaw_desync1:get_value())
+    else
+        yaw_desync:set_value(yaw_desync:get_value() - yaw_desync1:get_value())
+    end
+end
+end
+client.register_callback("shot_fired",shot_change)
 --=========================================================================================================================
 function on_ping_spike(cmd)
 
