@@ -25,17 +25,15 @@ local ANTIBUG = {
 
 local username = client.get_username()
 client.notify("Salut ".. username ..", welcome use Isonami.")
-client.notify("Isonamiv1 by M3351AN#7417 A.K.A. Teikumo.")
-ui.add_slider_int("                [ISONAMI]", "isonami", 3351, 3351, 3351)
+client.notify("Isonami [Kai] by M3351AN#7417 A.K.A. Teikumo.")
+ui.add_slider_int("              [ISONAMI.Kai]", "isonami", 3351, 3351, 3351)
 ui.add_slider_int("                    by.M3351AN#", "m3351an", 7417, 7417, 7417)
-local github = ui.add_check_box("go to github", "github", false)
-local function on_github()
-    if github:get_value() == true then
-        os.execute ("start https://github.com/M3351AN/Isonami_4_Nixware")
-        github:set_value(false)
-    end
-end
-client.register_callback('paint', on_github)
+local tab_list = ui.add_combo_box("tab list", "tab_list", {"[0]credit", "[1]rage", "[2]antiaim", "[3]visuals", "[4]misc"}, 0)
+
+client.register_callback('paint', from_list)
+local tab_num = ui.add_text_input("select tab num", "tab_num", "0")
+local show_b = ui.add_check_box("show", "show_b", false)
+local hide_b = ui.add_check_box("hide", "hide_b", false)
 function on_credit()
     client.notify("You are using Isonami via teiku.moe.")
 end
@@ -188,96 +186,315 @@ ffi_helpers = {
         return addr
     end
 }
-
+--=========================================================================================================================
+local github = ui.add_check_box("go to github", "github", false)
+local upd = ui.add_check_box("get update", "upd", false)
 --RAGE
 --=========================================================================================================================
-local jump_scout = ui.add_check_box("jump scout", "jump_scout", false)
+local jump_scout                    = ui.add_check_box("jump scout", "jump_scout", false)
 
-local dmg_override = ui.add_key_bind("dmg override", "dmg_override", 0, 1)
-local dmg_override_value = ui.add_slider_int("dmg override value", "dmg_override_value", 1, 120, 1)
+local dmg_override                  = ui.add_key_bind("dmg override", "dmg_override", 0, 1)
+local dmg_override_value            = ui.add_slider_int("dmg override value", "dmg_override_value", 1, 120, 1)
 
-local hitscan_override = ui.add_key_bind('hitscan override', 'hitscan_override', 0, 1)
-local hitscan_override_type = ui.add_combo_box("hitscan override type", "hitscan_override_type", { "head", "chest", "pelvis", "stomach", "legs", "foot" }, 0)
+local hitscan_override              = ui.add_key_bind('hitscan override', 'hitscan_override', 0, 1)
+local hitscan_override_type         = ui.add_combo_box("hitscan override type", "hitscan_override_type", { "head", "chest", "pelvis", "stomach", "legs", "foot" }, 0)
 
-local safe_points_override = ui.add_key_bind("safe points override", "safe_points_override", 0, 1)
-local safe_points_override_type = ui.add_combo_box("safe points override type", "safe_points_override_type", { "default", "prefer", "force" }, 0)
+local safe_points_override          = ui.add_key_bind("safe points override", "safe_points_override", 0, 1)
+local safe_points_override_type     = ui.add_combo_box("safe points override type", "safe_points_override_type", { "default", "prefer", "force" }, 0)
 
-local exploit_hide_shots = ui.add_key_bind("exploit hide shots", "exploit_hide_shots", 0, 2)
-local exploit_doubletap = ui.add_key_bind("exploit doubletap", "exploit_doubletap", 0, 2)
+local exploit_hide_shots            = ui.add_key_bind("exploit hide shots", "exploit_hide_shots", 0, 2)
+local exploit_doubletap             = ui.add_key_bind("exploit doubletap", "exploit_doubletap", 0, 2)
 
-local scout_boost = ui.add_key_bind("scout boost", "scout_boost", 0, 1)
+local scout_boost                   = ui.add_key_bind("scout boost", "scout_boost", 0, 1)
+
 --local boost_min = ui.add_slider_int("min HC", "min_HC", 0, 100, 50)
-local boost_high = ui.add_slider_int("high velocity HC", "high_HC", 0, 100, 50)
-local boost_low = ui.add_slider_int("low velocity HC", "low_HC", 0, 100, 50)
-local boost_max = ui.add_slider_int("max HC", "max_HC", 0, 100, 75)
+local boost_high                    = ui.add_slider_int("high velocity HC", "high_HC", 0, 100, 50)
+local boost_low                     = ui.add_slider_int("low velocity HC", "low_HC", 0, 100, 50)
+local boost_max                     = ui.add_slider_int("max HC", "max_HC", 0, 100, 75)
 
-local ping_spike = ui.add_key_bind("ping spike on key", "ping_spike", 0, 1)
-local ping_spike_a = ui.add_slider_int("ovr. ping spike", "PS_a", 0, 200, 50)
-local ping_spike_b = ui.add_slider_int("def. ping spike", "PS_b", 0, 200, 50)
+local ping_spike                    = ui.add_key_bind("ping spike on key", "ping_spike", 0, 1)
+local ping_spike_a                  = ui.add_slider_int("ovr. ping spike", "PS_a", 0, 200, 50)
+local ping_spike_b                  = ui.add_slider_int("def. ping spike", "PS_b", 0, 200, 50)
 
 
 
 
 --ANTI-AIM
 --=========================================================================================================================
-local antihit_antiaim_left = ui.add_key_bind("Left", "antihit_antiaim_left", 0, 2)
+local antihit_antiaim_left      = ui.add_key_bind("Left", "antihit_antiaim_left", 0, 2)
 local antihit_antiaim_backwards = ui.add_key_bind("Backwards", "antihit_antiaim_backwards", 0, 2)
-local antihit_antiaim_right = ui.add_key_bind("Right", "antihit_antiaim_right", 0, 2)
+local antihit_antiaim_right     = ui.add_key_bind("Right", "antihit_antiaim_right", 0, 2)
 
 
 
-local as_shot = ui.add_check_box("change yaw as shot", "as_shot", false)
-local yaw_desync = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
-local yaw_desync1 = ui.add_slider_int("shot +-", "yaw_desync1", 0, 60, 0)
+local as_shot                   = ui.add_check_box("change yaw as shot", "as_shot", false)
+local yaw_desync                = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
+local yaw_desync1               = ui.add_slider_int("yaw shot +-", "yaw_desync1", 0, 60, 0)
 
-local fast_filp = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" , "spike" }, 0)
+local as_shotr                   = ui.add_check_box("change roll as shot", "as_shotr", false)
 
-local choke_int_slider = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
-local send_int_slider = ui.add_slider_int("send", "send_int", 1, 14, 1)
+local fast_filp                 = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" , "spike" }, 0)
 
-local legit_aa = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
+local choke_int_slider          = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
+local send_int_slider           = ui.add_slider_int("send", "send_int", 1, 14, 1)
 
-local add_jitter = ui.add_check_box("add jitter", "add_jitter", false)
-local jitter_angle = ui.add_slider_float("jitter angle", "jitter_angle", 0, 180, 0)
+local legit_aa                  = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
 
-local low_delta_on_slowwalk = ui.add_check_box("low delta on slowwalk", "low_delta_on_slowwalk", false)
-local low_delta_angle = ui.add_slider_int("low delta angle", "low_delta_angle", 0, 60, 0)
+local add_jitter                = ui.add_check_box("add jitter", "add_jitter", false)
+local jitter_angle              = ui.add_slider_float("jitter angle", "jitter_angle", 0, 180, 0)
 
-local at_targets_only_in_air = ui.add_check_box("at targets only in air", "at_targets_only_in_air", false)
+local low_delta_on_slowwalk     = ui.add_check_box("low delta on slowwalk", "low_delta_on_slowwalk", false)
+local low_delta_angle           = ui.add_slider_int("low delta angle", "low_delta_angle", 0, 60, 0)
 
-local slowwalk_breaker = ui.add_key_bind("slowwalk breaker", "slowwalk_breaker", 0,1)
+local at_targets_only_in_air    = ui.add_check_box("at targets only in air", "at_targets_only_in_air", false)
 
-local leg_fucker = ui.add_check_box("leg breaker", "leg_fucker", false)
+local slowwalk_breaker          = ui.add_key_bind("slowwalk breaker", "slowwalk_breaker", 0,1)
 
-local sta_leg = ui.add_check_box("static leg", "sta_leg", false)
+
 --VISUALS
 --=========================================================================================================================
-local molo_color = ui.add_color_edit("MolotovRadius", "molo_color", true, color_t.new(255, 255, 255, 255))
-local indicators = ui.add_check_box("indicators", "indicators", false)
-local scope_transparent = ui.add_check_box("scope transparent(require update)", "scope_transparent", false)
-local transparent = ui.add_slider_int('transparent in scope', 'vis_transparent_in_scope', 1, 100, 75)
-local radar_hack = ui.add_check_box("radar hack", "radar_hack", false)
-local flip_knife = ui.add_check_box("flip knife hand", "flip_knife", false)
-local logs = ui.add_check_box("logs", "logs", false)
-local is_heart_enabled = ui.add_check_box('heartmarkers', 'vis_heartmarkers_enable', false)
-local is_heart_colored = ui.add_check_box('colored', 'vis_heartmarkers_colored', false)
-local thirdperson_distance = ui.add_slider_int("thirdperson distance value", "thirdperson_distance", 0, 200, 150)
-local nwatermark = ui.add_check_box("new watermark", "nwatermark", false)
-local watermark = ui.add_check_box("classic watermark", "watermark", false)
-local watermark_x = ui.add_slider_int("watermark_x", "watermark_x", 0, engine.get_screen_size().x, 2)
-local watermark_y = ui.add_slider_int("watermark_y", "watermark_y", 0, engine.get_screen_size().y, 0)
-local hotkey_binds = ui.add_check_box("hotkey binds", "hotkey_binds", false)
-local hotkey_binds_x = ui.add_slider_int("hotkey_binds_x", "hotkey_binds_x", 0, engine.get_screen_size().x, 2)
-local hotkey_binds_y = ui.add_slider_int("hotkey_binds_y", "hotkey_binds_y", 0, engine.get_screen_size().y, 0)
+local molo_color            = ui.add_color_edit("MolotovRadius", "molo_color", true, color_t.new(255, 255, 255, 255))
+local indicators            = ui.add_check_box("indicators", "indicators", false)
+local scope_transparent     = ui.add_check_box("scope trans.[require update]", "scope_transparent", false)
+local transparent           = ui.add_slider_int('transparent in scope', 'vis_transparent_in_scope', 1, 100, 75)
+local radar_hack            = ui.add_check_box("radar hack", "radar_hack", false)
+local flip_knife            = ui.add_check_box("flip knife hand", "flip_knife", false)
+local logs                  = ui.add_check_box("logs", "logs", false)
+local is_heart_enabled      = ui.add_check_box('heartmarkers', 'vis_heartmarkers_enable', false)
+local is_heart_colored      = ui.add_check_box('colored', 'vis_heartmarkers_colored', false)
+local thirdperson_distance  = ui.add_slider_int("thirdperson distance value", "thirdperson_distance", 0, 200, 150)
+local nwatermark            = ui.add_check_box("new watermark", "nwatermark", false)
+local watermark             = ui.add_check_box("classic watermark", "watermark", false)
+local watermark_x           = ui.add_slider_int("watermark_x", "watermark_x", 0, engine.get_screen_size().x, 2)
+local watermark_y           = ui.add_slider_int("watermark_y", "watermark_y", 0, engine.get_screen_size().y, 0)
+local hotkey_binds          = ui.add_check_box("hotkey binds", "hotkey_binds", false)
+local hotkey_binds_x        = ui.add_slider_int("hotkey_binds_x", "hotkey_binds_x", 0, engine.get_screen_size().x, 2)
+local hotkey_binds_y        = ui.add_slider_int("hotkey_binds_y", "hotkey_binds_y", 0, engine.get_screen_size().y, 0)
 
 
 --MISC
 --=========================================================================================================================
-local ragdoll = ui.add_check_box("ragdoll gravity", "ragdoll", false)
-local kill_say =  ui.add_check_box("kill say", "kill_say", false)
-local knife_bot = ui.add_check_box("knife bot", "knife_bot", false)
-local fps_boost = ui.add_check_box("fps boost", "fps_boost", false)
-local clean_blood = ui.add_key_bind("clean blood", "clean_blood", 0, 1)
+local ragdoll       = ui.add_check_box("ragdoll gravity", "ragdoll", false)
+local leg_fucker    = ui.add_check_box("leg breaker", "leg_fucker", false)
+local sta_leg       = ui.add_check_box("static leg", "sta_leg", false)
+local kill_say      =  ui.add_check_box("kill say", "kill_say", false)
+local knife_bot     = ui.add_check_box("knife bot", "knife_bot", false)
+local fps_boost     = ui.add_check_box("fps boost", "fps_boost", false)
+local panorama_blur = ui.add_check_box("panorama blur", "panorama_blur", false)
+local clean_blood   = ui.add_key_bind("clean blood", "clean_blood", 0, 1)
+
+--SHOW TAB
+--=========================================================================================================================
+local function to_show_tab0()
+
+            github:set_visible(true)
+            upd:set_visible(true)
+
+end
+local function to_show_tab1()
+
+            jump_scout:set_visible(true)
+            dmg_override:set_visible(true)
+            dmg_override_value:set_visible(true)
+            hitscan_override:set_visible(true)
+            hitscan_override_type:set_visible(true)
+            safe_points_override:set_visible(true)
+            safe_points_override_type:set_visible(true)
+            exploit_hide_shots:set_visible(true)
+            exploit_doubletap:set_visible(true)
+            scout_boost:set_visible(true)
+            boost_high:set_visible(true)
+            boost_low:set_visible(true)
+            boost_max:set_visible(true)
+            ping_spike:set_visible(true)
+            ping_spike_a:set_visible(true)
+            ping_spike_b:set_visible(true)
+
+end
+local function to_show_tab2()
+
+            antihit_antiaim_left:set_visible(true)    
+            antihit_antiaim_backwards:set_visible(true)
+            antihit_antiaim_right:set_visible(true)    
+            as_shot:set_visible(true)
+            as_shotr:set_visible(true)                   
+            yaw_desync:set_visible(true)               
+            yaw_desync1:set_visible(true)              
+            fast_filp:set_visible(true)                
+            choke_int_slider:set_visible(true)         
+            send_int_slider:set_visible(true)          
+            legit_aa:set_visible(true)                 
+            add_jitter:set_visible(true)               
+            jitter_angle:set_visible(true)             
+            low_delta_on_slowwalk:set_visible(true)    
+            low_delta_angle:set_visible(true)          
+            at_targets_only_in_air:set_visible(true)   
+            slowwalk_breaker:set_visible(true)
+
+   
+end
+local function to_show_tab3()
+
+            molo_color:set_visible(true)
+            indicators:set_visible(true)
+            scope_transparent:set_visible(true)
+            transparent:set_visible(true)
+            radar_hack:set_visible(true)
+            flip_knife:set_visible(true)
+            logs:set_visible(true)
+            is_heart_enabled:set_visible(true)
+            is_heart_colored:set_visible(true)
+            thirdperson_distance:set_visible(true)
+            nwatermark:set_visible(true)
+            watermark:set_visible(true)
+            watermark_x:set_visible(true)
+            watermark_y:set_visible(true)
+            hotkey_binds:set_visible(true)
+            hotkey_binds_x:set_visible(true)
+            hotkey_binds_y:set_visible(true)
+
+end
+local function to_show_tab4()
+  
+            ragdoll:set_visible(true)
+            leg_fucker:set_visible(true) 
+            sta_leg:set_visible(true)    
+            kill_say:set_visible(true)   
+            knife_bot:set_visible(true)  
+            fps_boost:set_visible(true) 
+            panorama_blur:set_visible(true) 
+            clean_blood:set_visible(true)
+end
+local function to_hide_tab0()
+
+            github:set_visible(false)
+            upd:set_visible(false)
+end
+local function to_hide_tab1()
+
+            jump_scout:set_visible(false)
+            dmg_override:set_visible(false)
+            dmg_override_value:set_visible(false)
+            hitscan_override:set_visible(false)
+            hitscan_override_type:set_visible(false)
+            safe_points_override:set_visible(false)
+            safe_points_override_type:set_visible(false)
+            exploit_hide_shots:set_visible(false)
+            exploit_doubletap:set_visible(false)
+            scout_boost:set_visible(false)
+            boost_high:set_visible(false)
+            boost_low:set_visible(false)
+            boost_max:set_visible(false)
+            ping_spike:set_visible(false)
+            ping_spike_a:set_visible(false)
+            ping_spike_b:set_visible(false)
+
+end
+local function to_hide_tab2()
+
+            antihit_antiaim_left:set_visible(false)    
+            antihit_antiaim_backwards:set_visible(false)
+            antihit_antiaim_right:set_visible(false)    
+            as_shot:set_visible(false)
+            as_shotr:set_visible(false)                   
+            yaw_desync:set_visible(false)               
+            yaw_desync1:set_visible(false)              
+            fast_filp:set_visible(false)                
+            choke_int_slider:set_visible(false)         
+            send_int_slider:set_visible(false)          
+            legit_aa:set_visible(false)                 
+            add_jitter:set_visible(false)               
+            jitter_angle:set_visible(false)             
+            low_delta_on_slowwalk:set_visible(false)    
+            low_delta_angle:set_visible(false)          
+            at_targets_only_in_air:set_visible(false)   
+            slowwalk_breaker:set_visible(false)
+
+end
+local function to_hide_tab3()
+
+            molo_color:set_visible(false)
+            indicators:set_visible(false)
+            scope_transparent:set_visible(false)
+            transparent:set_visible(false)
+            radar_hack:set_visible(false)
+            flip_knife:set_visible(false)
+            logs:set_visible(false)
+            is_heart_enabled:set_visible(false)
+            is_heart_colored:set_visible(false)
+            thirdperson_distance:set_visible(false)
+            nwatermark:set_visible(false)
+            watermark:set_visible(false)
+            watermark_x:set_visible(false)
+            watermark_y:set_visible(false)
+            hotkey_binds:set_visible(false)
+            hotkey_binds_x:set_visible(false)
+            hotkey_binds_y:set_visible(false)
+
+end
+local function to_hide_tab4()
+
+            ragdoll:set_visible(false)
+            leg_fucker:set_visible(false) 
+            sta_leg:set_visible(false)    
+            kill_say:set_visible(false)   
+            knife_bot:set_visible(false)  
+            fps_boost:set_visible(false) 
+            panorama_blur:set_visible(false) 
+            clean_blood:set_visible(false)
+
+end
+
+function to_call_back()
+    local showtab = tab_num:get_value()
+    if showtab == "0" then
+        if show_b:get_value() == true then
+                to_show_tab0()
+            show_b:set_value(false)
+        
+        elseif hide_b:get_value() == true then
+            to_hide_tab0()
+            hide_b:set_value(false)
+        end
+    elseif showtab == "1" then
+        if show_b:get_value() == true then
+            to_show_tab1()
+        show_b:set_value(false)
+    
+        elseif hide_b:get_value() == true then
+            to_hide_tab1()
+            hide_b:set_value(false)
+        end
+    elseif showtab == "2" then
+        if show_b:get_value() == true then
+            to_show_tab2()
+        show_b:set_value(false)
+    
+        elseif hide_b:get_value() == true then
+            to_hide_tab2()
+            hide_b:set_value(false)
+        end
+    elseif showtab == "3" then
+        if show_b:get_value() == true then
+            to_show_tab3()
+        show_b:set_value(false)
+    
+        elseif hide_b:get_value() == true then
+            to_hide_tab3()
+            hide_b:set_value(false)
+        end
+    elseif showtab == "4" then
+        if show_b:get_value() == true then
+            to_show_tab4()
+        show_b:set_value(false)
+    
+        elseif hide_b:get_value() == true then
+            to_hide_tab4()
+            hide_b:set_value(false)
+        end
+    end
+end
+client.register_callback("paint", to_call_back)
 --netvar and function
 --=========================================================================================================================
 
@@ -553,6 +770,20 @@ messages.text = ""
 messages.bg_position = 0
 messages.once = true
 --=========================================================================================================================
+local function on_github()
+    if github:get_value() == true then
+        os.execute ("start https://github.com/M3351AN/Isonami_4_Nixware")
+        github:set_value(false)
+    end
+end
+client.register_callback('paint', on_github)
+local function on_upd()
+    if upd:get_value() == true then
+        os.execute ("start https://github.com/M3351AN/Isonami_4_Nixware/releases")
+        upd:set_value(false)
+    end
+end
+client.register_callback('paint', on_upd)
 
 
 --RAGE
@@ -740,6 +971,9 @@ client.register_callback("create_move", on_scout_boost)
 local shott = 0
 function shot_change (e)
 shott = shott + 1
+if as_shotr:get_value() == true then
+    ui.get_slider_int("antihit_antiaim_desync_roll"):set_value(- ui.get_slider_int("antihit_antiaim_desync_roll"):get_value())
+end
 if as_shot:get_value() == true then
     local index = shott % 2
     if index == 0 then
@@ -750,6 +984,7 @@ if as_shot:get_value() == true then
 end
 end
 client.register_callback("shot_fired",shot_change)
+
 --=========================================================================================================================
 function on_ping_spike(cmd)
 
@@ -1846,6 +2081,20 @@ local function on_unload_fps()
     se.get_convar("cl_disable_ragdolls"):set_int(0)
 end
 client.register_callback("unload", on_unload_fps)
+
+local function paint_blur()
+    if panorama_blur:get_value() == true then
+        se.get_convar("@panorama_disable_blur"):set_int(1)
+    else
+        se.get_convar("@panorama_disable_blur"):set_int(0)
+    end
+end
+client.register_callback("paint", paint_blur)
+local function on_unload_blur()
+    se.get_convar("@panorama_disable_blur"):set_int(0)
+end
+client.register_callback("unload", on_unload_blur)
+
 function on_clean_blood()
     if clean_blood:is_active() == true then
         engine.execute_client_cmd("r_cleardecals")
@@ -1866,3 +2115,9 @@ while anti_b < 21 do
             console_color.clr[3] = 255
     console_print(engine_cvar, console_color, ANTIBUG[anti_b])
 end
+--=========================================================================================================================
+to_show_tab0()
+to_hide_tab1()
+to_hide_tab2()
+to_hide_tab3()
+to_hide_tab4()
