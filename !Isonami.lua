@@ -231,12 +231,13 @@ local as_shot                   = ui.add_check_box("change yaw as shot", "as_sho
 local yaw_desync                = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
 local yaw_desync1               = ui.add_slider_int("yaw shot +-", "yaw_desync1", 0, 60, 0)
 
-local as_shotr                   = ui.add_check_box("change roll as shot", "as_shotr", false)
+local as_shotr                  = ui.add_check_box("change roll as shot", "as_shotr", false)
 
 local fast_filp                 = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" , "spike" }, 0)
 
 local choke_int_slider          = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
 local send_int_slider           = ui.add_slider_int("send", "send_int", 1, 14, 1)
+local blc                       = ui.add_slider_int("break lagcomp", "blc",0, 14, 0)
 
 local legit_aa                  = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
 
@@ -322,7 +323,8 @@ local function to_show_tab2()
             yaw_desync1:set_visible(true)              
             fast_filp:set_visible(true)                
             choke_int_slider:set_visible(true)         
-            send_int_slider:set_visible(true)          
+            send_int_slider:set_visible(true)
+            blc:set_visible(true)          
             legit_aa:set_visible(true)                 
             add_jitter:set_visible(true)               
             jitter_angle:set_visible(true)             
@@ -401,7 +403,8 @@ local function to_hide_tab2()
             yaw_desync1:set_visible(false)              
             fast_filp:set_visible(false)                
             choke_int_slider:set_visible(false)         
-            send_int_slider:set_visible(false)          
+            send_int_slider:set_visible(false)
+            blc:set_visible(false)          
             legit_aa:set_visible(false)                 
             add_jitter:set_visible(false)               
             jitter_angle:set_visible(false)             
@@ -1066,7 +1069,21 @@ client.register_callback("create_move", on_jitter)
 
 --ANTI-AIM
 --=========================================================================================================================
-
+function break_lagcomp()
+    local num = math.random(0,2)
+    if blc:get_value() > 1 then
+        
+        if num == 1 then
+            ui.get_slider_int("antihit_fakelag_limit"):set_value(1)
+            
+        else
+            
+            ui.get_slider_int("antihit_fakelag_limit"):set_value(blc:get_value())
+        
+        end
+    end
+end
+client.register_callback("create_move", break_lagcomp)
 function weapon_data( weapon )
     return ffi.cast("struct Weapon_Info_t*", weapon_data_call(ffi.cast("void*", weapon:get_address())));
 end
@@ -1340,7 +1357,7 @@ end
 
 function leg_breaker(cmd)  
 if leg_fucker:get_value() == true then
-
+        local legtype = math.random(0,4)
         local localplayer = entitylist.get_local_player()
         if not localplayer then return end
         ffi.cast("float*", ffi_helpers.get_entity_address(localplayer:get_index()) + m_flPoseParameter)[0] = 0
@@ -1348,14 +1365,25 @@ if leg_fucker:get_value() == true then
         if clientstate.get_choked_commands() == 0 then
             antihit_extra_leg_movement:set_value(2)
         else
-            antihit_extra_leg_movement:set_value(0)
+
+            
+                
+                if legtype == 3 then
+                    antihit_extra_leg_movement:set_value(0)
+                    
+                else
+                    
+                    antihit_extra_leg_movement:set_value(1)
+                
+                end
+            
         end
 
 end
 end
 
 client.register_callback("paint", for_break)
-client.register_callback("paint", leg_breaker)
+client.register_callback("create_move", leg_breaker)
 
 function for_static()
     local localplayer = entitylist.get_local_player()
