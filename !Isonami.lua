@@ -2029,7 +2029,24 @@ function on_hotkey_binds()
 end
 client.register_callback("paint", on_hotkey_binds)
 
+local function damaged_warn()
+    local warn = dmged:get_value()
+    local size = dmged_size:get_value()
+    local alpha = dmged_alpha:get_value()
+    local x = dmged_x:get_value()
+    local y = dmged_y:get_value()
+    if warn > 1 and warn < 100 then
+        if entitylist:get_local_player():get_prop_int(se.get_netvar("DT_BasePlayer", "m_iHealth")) >= warn then
+            renderer.texture( defpng , vec2_t.new(x, y), vec2_t.new(x + 155 * size,y +  260 * size), color_t.new(255, 255, 255, alpha))
+        else
+            renderer.texture( dmgpng , vec2_t.new(x, y), vec2_t.new(x + 197 * size,y +  135 * size), color_t.new(255, 255, 255, alpha))
+        end
+    end
+end
+--entitylist:get_local_player():get_prop_int(m_iHealth) >= warn then
 
+
+client.register_callback("paint", damaged_warn)
 --MISC
 --=========================================================================================================================
 function on_ragdoll()
@@ -2158,6 +2175,7 @@ while anti_b < 21 do
             console_color.clr[3] = 255
     console_print(engine_cvar, console_color, ANTIBUG[anti_b])
 end
+
 --=========================================================================================================================
 to_show_tab0()
 to_hide_tab1()
