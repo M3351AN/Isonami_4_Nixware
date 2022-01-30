@@ -31,7 +31,6 @@ ui.add_slider_int("                    by.M3351AN#", "m3351an", 7417, 7417, 7417
 local tab_list = ui.add_combo_box("tab list", "tab_list", {"[0]credit", "[1]rage", "[2]antiaim", "[3]visuals", "[4]misc"}, 0)
 
 client.register_callback('paint', from_list)
-local tab_num = ui.add_text_input("select tab num", "tab_num", "0")
 local show_b = ui.add_check_box("show", "show_b", false)
 local hide_b = ui.add_check_box("hide", "hide_b", false)
 function on_credit()
@@ -449,8 +448,8 @@ local function to_hide_tab4()
 end
 
 function to_call_back()
-    local showtab = tab_num:get_value()
-    if showtab == "0" then
+    local showtab = tab_list:get_value()
+    if showtab == 0 then
         if show_b:get_value() == true then
                 to_show_tab0()
             show_b:set_value(false)
@@ -459,7 +458,7 @@ function to_call_back()
             to_hide_tab0()
             hide_b:set_value(false)
         end
-    elseif showtab == "1" then
+    elseif showtab == 1 then
         if show_b:get_value() == true then
             to_show_tab1()
         show_b:set_value(false)
@@ -468,7 +467,7 @@ function to_call_back()
             to_hide_tab1()
             hide_b:set_value(false)
         end
-    elseif showtab == "2" then
+    elseif showtab == 2 then
         if show_b:get_value() == true then
             to_show_tab2()
         show_b:set_value(false)
@@ -477,7 +476,7 @@ function to_call_back()
             to_hide_tab2()
             hide_b:set_value(false)
         end
-    elseif showtab == "3" then
+    elseif showtab == 3 then
         if show_b:get_value() == true then
             to_show_tab3()
         show_b:set_value(false)
@@ -486,7 +485,7 @@ function to_call_back()
             to_hide_tab3()
             hide_b:set_value(false)
         end
-    elseif showtab == "4" then
+    elseif showtab == 4 then
         if show_b:get_value() == true then
             to_show_tab4()
         show_b:set_value(false)
