@@ -268,9 +268,13 @@ local watermark             = ui.add_check_box("classic watermark", "watermark",
 local watermark_x           = ui.add_slider_int("watermark_x", "watermark_x", 0, engine.get_screen_size().x, 2)
 local watermark_y           = ui.add_slider_int("watermark_y", "watermark_y", 0, engine.get_screen_size().y, 0)
 local hotkey_binds          = ui.add_check_box("hotkey binds", "hotkey_binds", false)
-local hotkey_binds_x        = ui.add_slider_int("hotkey_binds_x", "hotkey_binds_x", 0, engine.get_screen_size().x, 2)
-local hotkey_binds_y        = ui.add_slider_int("hotkey_binds_y", "hotkey_binds_y", 0, engine.get_screen_size().y, 0)
-
+local hotkey_binds_x        = ui.add_slider_int("hotkey binds_x", "hotkey_binds_x", 0, engine.get_screen_size().x, 2)
+local hotkey_binds_y        = ui.add_slider_int("hotkey binds_y", "hotkey_binds_y", 0, engine.get_screen_size().y, 0)
+local dmged                 =  ui.add_slider_int("warn hp", "dmged_hp", 0,100, 0)
+local dmged_size            = ui.add_slider_int("hp warn size", "dmged_size", 1, 4, 2)
+local dmged_alpha           = ui.add_slider_int("hp warn alpha", "dmged_alpha", 0, 255, 255)
+local dmged_x               = ui.add_slider_int("hp warn_x", "damaged_warn_x", 0, engine.get_screen_size().x, 2)
+local dmged_y               = ui.add_slider_int("hp warn_y", "damaged_warn_y", 0, engine.get_screen_size().y, 2)
 
 --MISC
 --=========================================================================================================================
@@ -353,6 +357,11 @@ local function to_show_tab3()
             hotkey_binds:set_visible(true)
             hotkey_binds_x:set_visible(true)
             hotkey_binds_y:set_visible(true)
+            dmged:set_visible(true)
+            dmged_size:set_visible(true)
+            dmged_alpha:set_visible(true)
+            dmged_x:set_visible(true)
+            dmged_y:set_visible(true)
 
 end
 local function to_show_tab4()
@@ -432,6 +441,11 @@ local function to_hide_tab3()
             hotkey_binds:set_visible(false)
             hotkey_binds_x:set_visible(false)
             hotkey_binds_y:set_visible(false)
+            dmged:set_visible(false)
+            dmged_size:set_visible(false)
+            dmged_alpha:set_visible(false)
+            dmged_x:set_visible(false)
+            dmged_y:set_visible(false)
 
 end
 local function to_hide_tab4()
@@ -499,6 +513,8 @@ end
 client.register_callback("paint", to_call_back)
 --netvar and function
 --=========================================================================================================================
+local defpng                = renderer.setup_texture("C:/nixware/DEF.png")
+local dmgpng                = renderer.setup_texture("C:/nixware/DMG.png")
 
 local m_bPinPulled = se.get_netvar("DT_BaseCSGrenade", "m_bPinPulled")
 local m_fThrowTime = se.get_netvar("DT_BaseCSGrenade", "m_fThrowTime")
