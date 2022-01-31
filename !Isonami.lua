@@ -190,6 +190,8 @@ local github = ui.add_check_box("go to github", "github", false)
 local upd = ui.add_check_box("get update", "upd", false)
 --RAGE
 --=========================================================================================================================
+local shot_delay = ui.add_slider_int("shot delay[test]", "shot_delay", 0, 300, 0)
+
 local jump_scout                    = ui.add_check_box("jump scout", "jump_scout", false)
 
 local dmg_override                  = ui.add_key_bind("dmg override", "dmg_override", 0, 1)
@@ -296,7 +298,7 @@ local function to_show_tab0()
 
 end
 local function to_show_tab1()
-
+            shot_delay:set_visible(true)
             jump_scout:set_visible(true)
             dmg_override:set_visible(true)
             dmg_override_value:set_visible(true)
@@ -381,7 +383,7 @@ local function to_hide_tab0()
             upd:set_visible(false)
 end
 local function to_hide_tab1()
-
+            shot_delay:set_visible(false)
             jump_scout:set_visible(false)
             dmg_override:set_visible(false)
             dmg_override_value:set_visible(false)
@@ -806,6 +808,23 @@ client.register_callback('paint', on_upd)
 
 --RAGE
 --=========================================================================================================================
+local shotdelay = 0
+local ragebott = ui.get_key_bind("rage_enable_bind")
+local function on_shot_delay()
+    if shot_delay:get_value() > 0 then
+    local curTime = globalvars.get_current_time()
+    if curTime > shotdelay then
+        ragebott:set_type(0)
+        shotdelay = curTime + shot_delay:get_value() /1000
+    else
+        ragebott:set_type(1)
+    end
+else
+ragebott:set_type(0)   
+end
+end
+client.register_callback("create_move", on_shot_delay)
+
 function on_knife_bot(cmd)
 if knife_bot:get_value() == true then 
 	if (not GetWeaponData(entitylist.get_entity_from_handle( entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BaseCombatCharacter", "m_hActiveWeapon" ) ) )).iType == 0) then
