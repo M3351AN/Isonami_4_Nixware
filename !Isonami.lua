@@ -1,4 +1,4 @@
-local ANTIBUG = {
+ANTIBUG = {
     "\n",
     "                       _oo0oo_\n",
     "                      o8888888o\n",
@@ -23,18 +23,19 @@ local ANTIBUG = {
     "\n"
     }--print at console
     local nixc = false
-    local username = client.get_username()
-    if username == "t.me/bat_crack SLAVA UKRAINI!" or username == "t.me/bat_crack SLAVA UKRAINI!" then
+    if client.get_username() == "t.me/bat_crack SLAVA UKRAINI!" or client.get_username() == "t.me/bat_crack SLAVA UKRAINI!" then
         nixc = true--ya net rusky I do not wanna see any propaganda but cheating in a video game!!
     end
     if nixc then
         username = "nixc"
+    else
+        username = client.get_username()
     end
     client.notify("Salut ".. username ..", welcome use Isonami.")
     client.notify("Isonami [Kai] by M3351AN#7417 A.K.A. Teikumo.")
     ui.add_slider_int("              [ISONAMI.Kai]", "isonami", 3351, 3351, 3351)
-    ui.add_slider_int("                    by.M3351AN#", "m3351an", 7417, 7417, 7417)
-    local tab_list = ui.add_combo_box("tab list", "tab_list", {"[0]credit", "[1]rage", "[2]antiaim", "[3]visuals", "[4]misc"}, 0)
+    ui.add_slider_int("                    by.m1tzw#", "m3351an", 5953, 5953, 5953)
+    local tab_list = ui.add_combo_box("tab list", "tab_list", {"[+]credit", "[+]rage", "[+]antiaim", "[+]visuals", "[+]misc"}, 0)
     
     client.register_callback('paint', from_list)
     
@@ -222,45 +223,214 @@ local ANTIBUG = {
     local ping_spike_a                  = ui.add_slider_int("ovr. ping spike", "PS_a", 0, 200, 50)
     local ping_spike_b                  = ui.add_slider_int("def. ping spike", "PS_b", 0, 200, 50)
     
-    
+    table_rage = {jump_scout,dmg_override,dmg_override_value,hitscan_override,hitscan_override_type,safe_points_override,safe_points_override_type,exploit_hide_shots,exploit_doubletap,scout_boost,boost_high,boost_low,boost_max,ping_spike,ping_spike_a,ping_spike_b}
     
     
     --ANTI-AIM
     --=========================================================================================================================
-    local antihit_antiaim_left      = ui.add_key_bind("Left", "antihit_antiaim_left", 0, 2)
-    local antihit_antiaim_backwards = ui.add_key_bind("Backwards", "antihit_antiaim_backwards", 0, 2)
-    local antihit_antiaim_right     = ui.add_key_bind("Right", "antihit_antiaim_right", 0, 2)
-    
-    
-    
-    local as_shot                   = ui.add_check_box("change yaw as shot", "as_shot", false)
-    local yaw_desync                = ui.add_slider_int("yaw desync", "yaw_desync", 0, 60, 0)
-    local yaw_desync1               = ui.add_slider_int("yaw shot +-", "yaw_desync1", 0, 60, 0)
-    
-    local as_shotr                  = ui.add_check_box("change roll as shot", "as_shotr", false)
-    
-    local fast_filp                 = ui.add_combo_box("desync fast filp", "fast_filp", { "diasble", "regular", "legacy" , "spike" }, 0)
-    
-    local choke_int_slider          = ui.add_slider_int("choke", "choke_int", 1, 14, 1)
-    local send_int_slider           = ui.add_slider_int("send", "send_int", 1, 14, 1)
-    local blc                       = ui.add_slider_int("break lagcomp", "blc",0, 14, 0)
-    
+    local antihit_antiaim_left      = ui.add_key_bind("left", "antihit_antiaim_left", 0, 2)
+    local antihit_antiaim_backwards = ui.add_key_bind("backwards", "antihit_antiaim_backwards", 0, 2)
+    local antihit_antiaim_right     = ui.add_key_bind("right", "antihit_antiaim_right", 0, 2)
+
     local legit_aa                  = ui.add_key_bind("legit aa", "legit_aa", 0, 2)
-    
-    local add_jitter                = ui.add_check_box("add jitter", "add_jitter", false)
-    local jitter_angle              = ui.add_slider_float("jitter angle", "jitter_angle", 0, 180, 0)
-    
-    local low_delta_on_slowwalk     = ui.add_check_box("low delta on slowwalk", "low_delta_on_slowwalk", false)
-    local low_delta_angle           = ui.add_slider_int("low delta angle", "low_delta_angle", 0, 60, 0)
     
     local at_targets_only_in_air    = ui.add_check_box("at targets only in air", "at_targets_only_in_air", false)
     
     local slowwalk_breaker          = ui.add_key_bind("slowwalk breaker", "slowwalk_breaker", 0,1)
-    
+    local AA_iso                    = ui.add_check_box("m1tzw AA", "AA_iso", false)
+    local switch_tick               = ui.add_slider_int("switch tick", "switch_tick", 1, 16, 1)
+    local AA_select                 = ui.add_combo_box("aa select", "AA_select", {"hide","standing", "moving", "slowwalk", "air", "duck","air+duck"}, 0)
+    table_aa = {antihit_antiaim_left,antihit_antiaim_backwards,antihit_antiaim_right,legit_aa,at_targets_only_in_air,slowwalk_breaker,AA_iso,switch_tick,AA_select}
+    --goto line 293
+    local left_yaw_add_sta          = ui.add_slider_int("left yaw add", "left_yaw_add_sta", -180, 180, 0)
+    local right_yaw_add_sta         = ui.add_slider_int("right yaw add", "right_yaw_add_sta", -180, 180, 0)
+    local yaw_modifier_sta          = ui.add_slider_int("yaw modifier", "yaw_modifier_sta", -180, 180, 0)
+    local left_min_sta              = ui.add_slider_int("left min", "left_min_sta", 0, 60, 60)
+    local left_max_sta              = ui.add_slider_int("left max", "left_max_sta", 0, 60, 60)
+    local right_min_sta             = ui.add_slider_int("right min", "right_min_sta", 0, 60, 60)
+    local right_max_sta             = ui.add_slider_int("right max", "right_max_sta", 0, 60, 60)
+    table_sta = {left_yaw_add_sta,right_yaw_add_sta,yaw_modifier_sta,left_min_sta,left_max_sta,right_min_sta,right_max_sta}
+    local left_yaw_add_mov          = ui.add_slider_int("left yaw add", "left_yaw_add_mov", -180, 180, 0)
+    local right_yaw_add_mov         = ui.add_slider_int("right yaw add", "right_yaw_add_mov", -180, 180, 0)
+    local yaw_modifier_mov          = ui.add_slider_int("yaw modifier", "yaw_modifier_mov", -180, 180, 0)
+    local left_min_mov              = ui.add_slider_int("left min", "left_min_mov", 0, 60, 60)
+    local left_max_mov              = ui.add_slider_int("left max", "left_max_mov", 0, 60, 60)
+    local right_min_mov             = ui.add_slider_int("right min", "right_min_mov", 0, 60, 60)
+    local right_max_mov             = ui.add_slider_int("right max", "right_max_mov", 0, 60, 60)
+    table_mov = {left_yaw_add_mov,right_yaw_add_mov,yaw_modifier_mov,left_min_mov,left_max_mov,right_min_mov,right_max_mov}
+    local left_yaw_add_slo          = ui.add_slider_int("left yaw add", "left_yaw_add_slo", -180, 180, 0)
+    local right_yaw_add_slo         = ui.add_slider_int("right yaw add", "right_yaw_add_slo", -180, 180, 0)
+    local yaw_modifier_slo          = ui.add_slider_int("yaw modifier", "yaw_modifier_slo", -180, 180, 0)
+    local left_min_slo              = ui.add_slider_int("left min", "left_min_slo", 0, 60, 60)
+    local left_max_slo              = ui.add_slider_int("left max", "left_max_slo", 0, 60, 60)
+    local right_min_slo             = ui.add_slider_int("right min", "right_min_slo", 0, 60, 60)
+    local right_max_slo             = ui.add_slider_int("right max", "right_max_slo", 0, 60, 60)
+    table_slo = {left_yaw_add_slo,right_yaw_add_slo,yaw_modifier_slo,left_min_slo,left_max_slo,right_min_slo,right_max_slo}
+    local left_yaw_add_air          = ui.add_slider_int("left yaw add", "left_yaw_add_air", -180, 180, 0)
+    local right_yaw_add_air         = ui.add_slider_int("right yaw add", "right_yaw_add_air", -180, 180, 0)
+    local yaw_modifier_air          = ui.add_slider_int("yaw modifier", "yaw_modifier_air", -180, 180, 0)
+    local left_min_air              = ui.add_slider_int("left min", "left_min_air", 0, 60, 60)
+    local left_max_air              = ui.add_slider_int("left max", "left_max_air", 0, 60, 60)
+    local right_min_air             = ui.add_slider_int("right min", "right_min_air", 0, 60, 60)
+    local right_max_air             = ui.add_slider_int("right max", "right_max_air", 0, 60, 60)
+    table_air = {left_yaw_add_air,right_yaw_add_air,yaw_modifier_air,left_min_air,left_max_air,right_min_air,right_max_air}
+    local left_yaw_add_duc          = ui.add_slider_int("left yaw add", "left_yaw_add_duc", -180, 180, 0)
+    local right_yaw_add_duc         = ui.add_slider_int("right yaw add", "right_yaw_add_duc", -180, 180, 0)
+    local yaw_modifier_duc          = ui.add_slider_int("yaw modifier", "yaw_modifier_duc", -180, 180, 0)
+    local left_min_duc              = ui.add_slider_int("left min", "left_min_duc", 0, 60, 60)
+    local left_max_duc              = ui.add_slider_int("left max", "left_max_duc", 0, 60, 60)
+    local right_min_duc             = ui.add_slider_int("right min", "right_min_duc", 0, 60, 60)
+    local right_max_duc             = ui.add_slider_int("right max", "right_max_duc", 0, 60, 60)
+    table_duc = {left_yaw_add_duc,right_yaw_add_duc,yaw_modifier_duc,left_min_duc,left_max_duc,right_min_duc,right_max_duc}
+    local left_yaw_add_adu          = ui.add_slider_int("left yaw add", "left_yaw_add_adu", -180, 180, 0)
+    local right_yaw_add_adu         = ui.add_slider_int("right yaw add", "right_yaw_add_adu", -180, 180, 0)
+    local yaw_modifier_adu          = ui.add_slider_int("yaw modifier", "yaw_modifier_adu", -180, 180, 0)
+    local left_min_adu              = ui.add_slider_int("left min", "left_min_adu", 0, 60, 60)
+    local left_max_adu              = ui.add_slider_int("left max", "left_max_adu", 0, 60, 60)
+    local right_min_adu             = ui.add_slider_int("right min", "right_min_adu", 0, 60, 60)
+    local right_max_adu             = ui.add_slider_int("right max", "right_max_adu", 0, 60, 60)
+    table_adu = {left_yaw_add_adu,right_yaw_add_adu,yaw_modifier_adu,left_min_adu,left_max_adu,right_min_adu,right_max_adu}
+    local checking = 0
+    function on_select_tab()
+        
+        if checking then
+            checking = false
+        else
+            checking = true
+        end
+    end
+    function to_show_sta()
+        for i = 1, #table_sta do 
+            table_sta[i]:set_visible(true)
+        end 
+    end
+    function to_show_mov()
+        for i = 1, #table_mov do 
+            table_mov[i]:set_visible(true)
+        end 
+    end
+    function to_show_slo()
+        for i = 1, #table_slo do 
+            table_slo[i]:set_visible(true)
+        end 
+    end
+    function to_show_air()
+        for i = 1, #table_air do 
+            table_air[i]:set_visible(true)
+        end 
+    end
+    function to_show_duc()
+        for i = 1, #table_duc do 
+            table_duc[i]:set_visible(true)
+        end 
+    end
+    function to_show_adu()
+        for i = 1, #table_adu do 
+            table_adu[i]:set_visible(true)
+        end 
+    end
+    function to_hide_sta()
+        for i = 1, #table_sta do 
+            table_sta[i]:set_visible(false)
+        end 
+    end
+    function to_hide_mov()
+        for i = 1, #table_mov do 
+            table_mov[i]:set_visible(false)
+        end 
+    end
+    function to_hide_slo()
+        for i = 1, #table_slo do 
+            table_slo[i]:set_visible(false)
+        end 
+    end
+    function to_hide_air()
+        for i = 1, #table_air do 
+            table_air[i]:set_visible(false)
+        end 
+    end
+    function to_hide_duc()
+        for i = 1, #table_duc do 
+            table_duc[i]:set_visible(false)
+        end 
+    end
+    function to_hide_adu()
+        for i = 1, #table_adu do 
+            table_adu[i]:set_visible(false)
+        end 
+    end
+    function to_show_aa()
+        local showaa = AA_select:get_value()
+        if showaa == 0 then
+            if checking then
+                to_hide_sta()
+                to_hide_mov()
+                to_hide_slo()
+                to_hide_air()
+                to_hide_duc()
+                to_hide_adu()
+            end
+        elseif showaa == 1 then
+            if checking then
+                to_show_sta()
+                to_hide_mov()
+                to_hide_slo()
+                to_hide_air()
+                to_hide_duc()
+                to_hide_adu()
+            end
+        elseif showaa == 2 then
+            if checking then
+                to_show_mov()
+                to_hide_sta()
+                to_hide_slo()
+                to_hide_air()
+                to_hide_duc()
+                to_hide_adu()
+            end
+        elseif showaa == 3 then
+            if checking then
+                to_show_slo()
+                to_hide_mov()
+                to_hide_sta()
+                to_hide_air()
+                to_hide_duc()
+                to_hide_adu()
+            end
+        elseif showaa == 4 then
+            if checking then
+                to_show_air()
+                to_hide_mov()
+                to_hide_slo()
+                to_hide_sta()
+                to_hide_duc()
+                to_hide_adu()
+            end
+        elseif showaa == 5 then
+            if checking then
+                to_show_duc()
+                to_hide_mov()
+                to_hide_slo()
+                to_hide_air()
+                to_hide_sta()
+                to_hide_adu()
+            end
+        elseif showaa == 6 then
+            if checking then
+                to_show_adu()
+                to_hide_mov()
+                to_hide_slo()
+                to_hide_air()
+                to_hide_duc()
+                to_hide_sta()
+            end
+        end
+    end
+
     
     --VISUALS
     --=========================================================================================================================
-    local molo_color            = ui.add_color_edit("MolotovRadius", "molo_color", true, color_t.new(255, 255, 255, 255))
+    local molo_color            = ui.add_color_edit("molotov radius", "molo_color", true, color_t.new(255, 255, 255, 255))
     local indicators            = ui.add_check_box("indicators", "indicators", false)
     local scope_transparent     = ui.add_check_box("scope trans.[require update]", "scope_transparent", false)
     local transparent           = ui.add_slider_int('transparent in scope', 'vis_transparent_in_scope', 1, 100, 75)
@@ -282,7 +452,7 @@ local ANTIBUG = {
     local dmged_alpha           = ui.add_slider_int("hp warn alpha", "dmged_alpha", 0, 255, 255)
     local dmged_x               = ui.add_slider_int("hp warn_x", "damaged_warn_x", 0, engine.get_screen_size().x, 2)
     local dmged_y               = ui.add_slider_int("hp warn_y", "damaged_warn_y", 0, engine.get_screen_size().y, 2)
-    
+    table_visual = {molo_color,indicators,scope_transparent,transparent,radar_hack,flip_knife,logs,is_heart_enabled,is_heart_colored,thirdperson_distance,nwatermark,hotkey_binds,hotkey_binds_x,hotkey_binds_y,dmged,dmged_size,dmged_alpha,dmged_x,dmged_y}
     --MISC
     --=========================================================================================================================
     local ragdoll       = ui.add_check_box("ragdoll gravity", "ragdoll", false)
@@ -293,190 +463,76 @@ local ANTIBUG = {
     local fps_boost     = ui.add_check_box("fps boost", "fps_boost", false)
     local panorama_blur = ui.add_check_box("panorama blur", "panorama_blur", false)
     local clean_blood   = ui.add_key_bind("clean blood", "clean_blood", 0, 1)
-    
+    table_misc = { ragdoll,leg_fucker,sta_leg,kill_say,knife_bot,fps_boost,panorama_blur,clean_blood}
     --SHOW TAB
     --=========================================================================================================================
-    local function to_show_tab0()
+    function to_show_tab0()
     
                 github:set_visible(true)
                 upd:set_visible(true)
     
     end
-    local function to_show_tab1()
+    function to_show_tab1()
                 --shot_delay:set_visible(true)
-                jump_scout:set_visible(true)
-                dmg_override:set_visible(true)
-                dmg_override_value:set_visible(true)
-                hitscan_override:set_visible(true)
-                hitscan_override_type:set_visible(true)
-                safe_points_override:set_visible(true)
-                safe_points_override_type:set_visible(true)
-                exploit_hide_shots:set_visible(true)
-                exploit_doubletap:set_visible(true)
-                scout_boost:set_visible(true)
-                boost_high:set_visible(true)
-                boost_low:set_visible(true)
-                boost_max:set_visible(true)
-                ping_spike:set_visible(true)
-                ping_spike_a:set_visible(true)
-                ping_spike_b:set_visible(true)
-    
+                for i = 1, #table_rage do 
+                    table_rage[i]:set_visible(true)
+                end 
     end
-    local function to_show_tab2()
+    function to_show_tab2()
     
-                antihit_antiaim_left:set_visible(true)    
-                antihit_antiaim_backwards:set_visible(true)
-                antihit_antiaim_right:set_visible(true)    
-                as_shot:set_visible(true)
-                as_shotr:set_visible(true)                   
-                yaw_desync:set_visible(true)               
-                yaw_desync1:set_visible(true)              
-                fast_filp:set_visible(true)                
-                choke_int_slider:set_visible(true)         
-                send_int_slider:set_visible(true)
-                blc:set_visible(true)          
-                legit_aa:set_visible(true)                 
-                add_jitter:set_visible(true)               
-                jitter_angle:set_visible(true)             
-                low_delta_on_slowwalk:set_visible(true)    
-                low_delta_angle:set_visible(true)          
-                at_targets_only_in_air:set_visible(true)   
-                slowwalk_breaker:set_visible(true)
+        for i = 1, #table_aa do 
+            table_aa[i]:set_visible(true)
+        end 
     
        
     end
-    local function to_show_tab3()
+    function to_show_tab3()
     
-                molo_color:set_visible(true)
-                indicators:set_visible(true)
-                scope_transparent:set_visible(true)
-                transparent:set_visible(true)
-                radar_hack:set_visible(true)
-                flip_knife:set_visible(true)
-                logs:set_visible(true)
-                is_heart_enabled:set_visible(true)
-                is_heart_colored:set_visible(true)
-                thirdperson_distance:set_visible(true)
-                nwatermark:set_visible(true)
-                --watermark:set_visible(true)
-                --watermark_x:set_visible(true)
-                --watermark_y:set_visible(true)
-                hotkey_binds:set_visible(true)
-                hotkey_binds_x:set_visible(true)
-                hotkey_binds_y:set_visible(true)
-                dmged:set_visible(true)
-                dmged_size:set_visible(true)
-                dmged_alpha:set_visible(true)
-                dmged_x:set_visible(true)
-                dmged_y:set_visible(true)
-    
+        for i = 1, #table_visual do 
+            table_visual[i]:set_visible(true)
+        end 
     end
-    local function to_show_tab4()
-      
-                ragdoll:set_visible(true)
-                leg_fucker:set_visible(true) 
-                sta_leg:set_visible(true)    
-                kill_say:set_visible(true)   
-                knife_bot:set_visible(true)  
-                fps_boost:set_visible(true) 
-                panorama_blur:set_visible(true) 
-                clean_blood:set_visible(true)
+    function to_show_tab4()
+        for i = 1, #table_misc do 
+            table_misc[i]:set_visible(true)
+        end 
     end
-    local function to_hide_tab0()
+    function to_hide_tab0()
     
                 github:set_visible(false)
                 upd:set_visible(false)
     end
-    local function to_hide_tab1()
+    function to_hide_tab1()
                 --shot_delay:set_visible(false)
-                jump_scout:set_visible(false)
-                dmg_override:set_visible(false)
-                dmg_override_value:set_visible(false)
-                hitscan_override:set_visible(false)
-                hitscan_override_type:set_visible(false)
-                safe_points_override:set_visible(false)
-                safe_points_override_type:set_visible(false)
-                exploit_hide_shots:set_visible(false)
-                exploit_doubletap:set_visible(false)
-                scout_boost:set_visible(false)
-                boost_high:set_visible(false)
-                boost_low:set_visible(false)
-                boost_max:set_visible(false)
-                ping_spike:set_visible(false)
-                ping_spike_a:set_visible(false)
-                ping_spike_b:set_visible(false)
+                for i = 1, #table_rage do 
+                    table_rage[i]:set_visible(false)
+                end 
+    
     
     end
-    local function to_hide_tab2()
+    function to_hide_tab2()
     
-                antihit_antiaim_left:set_visible(false)    
-                antihit_antiaim_backwards:set_visible(false)
-                antihit_antiaim_right:set_visible(false)    
-                as_shot:set_visible(false)
-                as_shotr:set_visible(false)                   
-                yaw_desync:set_visible(false)               
-                yaw_desync1:set_visible(false)              
-                fast_filp:set_visible(false)                
-                choke_int_slider:set_visible(false)         
-                send_int_slider:set_visible(false)
-                blc:set_visible(false)          
-                legit_aa:set_visible(false)                 
-                add_jitter:set_visible(false)               
-                jitter_angle:set_visible(false)             
-                low_delta_on_slowwalk:set_visible(false)    
-                low_delta_angle:set_visible(false)          
-                at_targets_only_in_air:set_visible(false)   
-                slowwalk_breaker:set_visible(false)
+        for i = 1, #table_aa do 
+            table_aa[i]:set_visible(false)
+        end 
     
     end
-    local function to_hide_tab3()
+    function to_hide_tab3()
     
-                molo_color:set_visible(false)
-                indicators:set_visible(false)
-                scope_transparent:set_visible(false)
-                transparent:set_visible(false)
-                radar_hack:set_visible(false)
-                flip_knife:set_visible(false)
-                logs:set_visible(false)
-                is_heart_enabled:set_visible(false)
-                is_heart_colored:set_visible(false)
-                thirdperson_distance:set_visible(false)
-                nwatermark:set_visible(false)
-                --watermark:set_visible(false)
-                --watermark_x:set_visible(false)
-                --watermark_y:set_visible(false)
-                hotkey_binds:set_visible(false)
-                hotkey_binds_x:set_visible(false)
-                hotkey_binds_y:set_visible(false)
-                dmged:set_visible(false)
-                dmged_size:set_visible(false)
-                dmged_alpha:set_visible(false)
-                dmged_x:set_visible(false)
-                dmged_y:set_visible(false)
+                   
+        for i = 1, #table_visual do 
+            table_visual[i]:set_visible(false)
+        end 
     
     end
-    local function to_hide_tab4()
+    function to_hide_tab4()
     
-                ragdoll:set_visible(false)
-                leg_fucker:set_visible(false) 
-                sta_leg:set_visible(false)    
-                kill_say:set_visible(false)   
-                knife_bot:set_visible(false)  
-                fps_boost:set_visible(false) 
-                panorama_blur:set_visible(false) 
-                clean_blood:set_visible(false)
+        for i = 1, #table_misc do 
+            table_misc[i]:set_visible(false)
+        end 
     
     end
-    local checking = 0
-    local function on_select_tab()
-        
-        if checking then
-            checking = false
-        else
-            checking = true
-        end
-    end
-    client.register_callback('paint', on_select_tab)
+
     function to_call_back()
         local showtab = tab_list:get_value()
         if showtab == 0 then
@@ -526,7 +582,7 @@ local ANTIBUG = {
             end
         end
     end
-    client.register_callback("paint", to_call_back)
+ 
     --netvar and function
     --=========================================================================================================================
     local defpng                = renderer.setup_texture("C:/nixware/DEF.png")
@@ -576,7 +632,7 @@ local ANTIBUG = {
     local flame_radius = 60.0
     local flame_points = 32
     
-    local function draw_flame(pos)
+    function draw_flame(pos)
         local points = { }
         for i = 1, flame_points do
             local item = vec3_t.new(
@@ -630,7 +686,7 @@ local ANTIBUG = {
     
     
     
-    local function clamp(val, min, max)
+    function clamp(val, min, max)
         if val > max then return max end
         if val < min then return min end
         return val
@@ -765,7 +821,7 @@ local ANTIBUG = {
     
     function GetWeaponData( weapon ) return ffi.cast("struct WeaponInfo_t*", weapon_data_call(ffi.cast("void*", weapon:get_address()))) end
     
-    local function rectangle(x, y, w, h, color)
+    function rectangle(x, y, w, h, color)
         renderer.rect_filled(vec2_t.new(x, y), vec2_t.new(x + w, y + h), color_t.new(color[1], color[2], color[3], color[4]))
     end
     
@@ -804,14 +860,14 @@ local ANTIBUG = {
     messages.bg_position = 0
     messages.once = true
     --=========================================================================================================================
-    local function on_github()
+    function on_github()
         if github:get_value() == true then
             os.execute ("start https://github.com/M3351AN/Isonami_4_Nixware")
             github:set_value(false)
         end
     end
     client.register_callback('paint', on_github)
-    local function on_upd()
+    function on_upd()
         if upd:get_value() == true then
             os.execute ("start https://github.com/M3351AN/Isonami_4_Nixware/releases")
             upd:set_value(false)
@@ -824,7 +880,7 @@ local ANTIBUG = {
     --=========================================================================================================================
     --local shotdelay = 0
     local ragebott = ui.get_key_bind("rage_enable_bind")
-    --local function on_shot_delay()
+    --function on_shot_delay()
         --if shot_delay:get_value() > 0 then
         --local curTime = globalvars.get_current_time()
         --if curTime > shotdelay then
@@ -974,7 +1030,7 @@ local ANTIBUG = {
     client.register_callback('unload', on_unload_exploit)
     --=========================================================================================================================
     
-    local function on_move(cmd) 
+    function on_move(cmd) 
         local localplayer = entitylist.get_local_player()
         if not localplayer then return end
         ffi.cast("float*", ffi_helpers.get_entity_address(localplayer:get_index()) + 10100)[0] = 0
@@ -997,7 +1053,7 @@ local ANTIBUG = {
     end
     
     
-    local function low_speed(cmd)
+    function low_speed(cmd)
     
     
     
@@ -1020,21 +1076,7 @@ local ANTIBUG = {
     client.register_callback("create_move", on_move)
     client.register_callback("create_move", on_scout_boost)
     local shott = 0
-    function shot_change (e)
-    shott = shott + 1
-    if as_shotr:get_value() == true then
-        ui.get_slider_int("antihit_antiaim_desync_roll"):set_value(- ui.get_slider_int("antihit_antiaim_desync_roll"):get_value())
-    end
-    if as_shot:get_value() == true then
-        local index = shott % 2
-        if index == 0 then
-            yaw_desync:set_value(yaw_desync:get_value() + yaw_desync1:get_value())
-        else
-            yaw_desync:set_value(yaw_desync:get_value() - yaw_desync1:get_value())
-        end
-    end
-    end
-    client.register_callback("shot_fired",shot_change)
+
     
     --=========================================================================================================================
     function on_ping_spike(cmd)
@@ -1054,84 +1096,15 @@ local ANTIBUG = {
     --=========================================================================================================================
     --n07h1ng h3r3
     --=========================================================================================================================
-    flipt = 0
-    function on_fast_filp(cmd)
-        local num = math.random(0,2)
-        if fast_filp:get_value() == 1 then
-            
-            if num == 1 then
-                local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
-                
-            else
-                local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
-            
-            end
-        elseif fast_filp:get_value() == 3 then
-            flipt = flipt + 1
-        if flipt > 16 then
-            flipt = 0
-            local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
-        else
-            local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
-        end
-        elseif fast_filp:get_value() == 2 then
-            if switch2 then
-                switch2 = false
-            else
-                switch2 = true
-            end
-    
-            if switch2 then
-                local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
-            else
-                local antiaim_flip = ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
-            end
-        end 
-    end
-    
-    client.register_callback("create_move", on_fast_filp)
     
     
-    function on_jitter(cmd)
-        if add_jitter:get_value() == true then
-                   
-            if switch3 then
-                switch3 = false
-            else
-                 switch3 = true
-            end
-        
-            if switch3 then
-                cmd.viewangles.yaw = engine.get_view_angles().yaw
-                cmd.viewangles.yaw = cmd.viewangles.yaw - jitter_angle:get_value()
-            else
-                cmd.viewangles.yaw = engine.get_view_angles().yaw
-                cmd.viewangles.yaw = cmd.viewangles.yaw - jitter_angle:get_value() * -1
-            end
-        end
-    end
     
-    client.register_callback("create_move", on_jitter)
+   
     
     
     
     --ANTI-AIM
     --=========================================================================================================================
-    function break_lagcomp()
-        local num = math.random(0,2)
-        if blc:get_value() > 1 then
-            
-            if num == 1 then
-                ui.get_slider_int("antihit_fakelag_limit"):set_value(1)
-                
-            else
-                
-                ui.get_slider_int("antihit_fakelag_limit"):set_value(blc:get_value())
-            
-            end
-        end
-    end
-    client.register_callback("create_move", break_lagcomp)
     function weapon_data( weapon )
         return ffi.cast("struct Weapon_Info_t*", weapon_data_call(ffi.cast("void*", weapon:get_address())));
     end
@@ -1170,9 +1143,9 @@ local ANTIBUG = {
     
     end
     
-    local function hasbit(x, p) return x % (p + p) >= p end
+    function hasbit(x, p) return x % (p + p) >= p end
     
-    local function checks(pCmd)
+    function checks(pCmd)
     
         local netMoveType = se.get_netvar("DT_BaseEntity", "m_nRenderMode") + 1
         local move_type = entitylist.get_local_player():get_prop_int(netMoveType)
@@ -1194,7 +1167,7 @@ local ANTIBUG = {
         end
     end
     
-    local function sidemoves(pCmd)
+    function sidemoves(pCmd)
         if math.abs(pCmd.sidemove) < 4 then
             if pCmd.command_number % 2 == 1 then
                 pCmd.sidemove = client.is_key_pressed(17) and 3.01 or 1.01 + pCmd.sidemove
@@ -1205,7 +1178,7 @@ local ANTIBUG = {
     end    
     
     
-    local function do_lby(pCmd)
+    function do_lby(pCmd)
         if checks(pCmd) then return end
     
         side = inverter_bind:is_active() and 1 or -1
@@ -1264,39 +1237,9 @@ local ANTIBUG = {
         end
     end
     
-    local function fakelags(pCmd)
-        if clientstate.get_choked_commands() > 12 then return end
     
-        if ebind:is_active() and ebox:get_value() > 0 then
-            choke = 1
-            send = choke + 2
-        else
-            choke = choke_int_slider:get_value()
-            send = choke + send_int_slider:get_value()
-        end
-    
-        cnt = cnt + 1
-    
-        if cnt > 0 and cnt <= choke then
-            force_choke = true
-            force_send = false
-        elseif cnt > choke and cnt <= send then
-            force_send = break_lby and false or true
-            force_choke = break_lby and true or false
-        elseif cnt > send then
-            cnt = 0
-        end
-    
-        if force_choke or break_lby then
-            pCmd.send_packet = false
-        elseif force_send then
-            pCmd.send_packet = true
-        end                
-    end
-    
-    client.register_callback("create_move", fakelags)
     --=========================================================================================================================
-    local function get_antihit_antiaim_yaw()
+    function get_antihit_antiaim_yaw()
         if client.is_key_clicked(antihit_antiaim_left:get_key()) then
             if antihit_antiaim_yaw == 1 then
             return 0
@@ -1318,11 +1261,11 @@ local ANTIBUG = {
         return antihit_antiaim_yaw
     end
     
-    local function for_manual_on_paint()
+    function for_manual_on_paint()
         antihit_antiaim_yaw = get_antihit_antiaim_yaw()
     end
     
-    local function for_manual_on_create_move(cmd)
+    function for_manual_on_create_move(cmd)
         if antihit_antiaim_yaw == 0 then
             ui.get_combo_box("antihit_antiaim_yaw"):set_value(1)
         end
@@ -1397,7 +1340,7 @@ local ANTIBUG = {
     client.register_callback('unload', on_unload_legit_aa)
     client.register_callback("paint", set_speed)
     --=========================================================================================================================
-    local function for_break(cmd) 
+    function for_break(cmd) 
         local localplayer = entitylist.get_local_player()
         if not localplayer then return end
         ffi.cast("float*", ffi_helpers.get_entity_address(localplayer:get_index()) + 10100)[0] = 0
@@ -1465,35 +1408,7 @@ local ANTIBUG = {
     end
     client.register_callback("paint", on_sta_leg)
     --=========================================================================================================================
-    function on_low_delta_on_slowwalk()
-        local_player = entitylist:get_local_player()
-    
-        if legit_aa:is_active() or local_player:get_prop_int(m_iHealth) < 1 then
-            return
-        end
-    
-        is_slowwalk_checkbox = ui.get_check_box("antihit_extra_slowwalk")
-        is_slowwalk = ui.get_key_bind("antihit_extra_slowwalk_bind")
-        is_desync_length = ui.get_slider_int("antihit_antiaim_desync_length")
-    
-        if local_player:get_prop_int(m_iHealth) < 1 then
-            return
-        end
-    
-        if is_slowwalk_checkbox:get_value() and is_slowwalk:is_active() and low_delta_on_slowwalk:get_value() then
-            is_desync_length:set_value(low_delta_angle:get_value())
-        else 
-            is_desync_length:set_value(yaw_desync:get_value())
-        end
-    end
-    
-    function on_unload_low_delta_on_slowwalk()
-        is_desync_length = ui.get_slider_int("antihit_antiaim_desync_length")
-    
-        is_desync_length:set_value(yaw_desync:get_value())
-    end
-    client.register_callback("paint", on_low_delta_on_slowwalk)
-    client.register_callback('unload', on_unload_low_delta_on_slowwalk)
+
     
     
     --=========================================================================================================================
@@ -1724,7 +1639,7 @@ local ANTIBUG = {
     
     
     local hearts = {}
-    local function draw_heart(x, y, color)
+    function draw_heart(x, y, color)
         rectangle(x + 2, y + 14, 2, 2, { 0, 0, 0, color[4] })
         rectangle(x, y + 12, 2, 2, { 0, 0, 0, color[4] })
         rectangle(x - 2, y + 10, 2, 2, { 0, 0, 0, color[4] })
@@ -1754,7 +1669,7 @@ local ANTIBUG = {
         rectangle(x, y + 4, 2, 2, { 254, 199, 199, color[4] })
     end
     
-    local function on_heart_render()
+    function on_heart_render()
         if not is_heart_enabled:get_value() then return end
     
         local realtime = globalvars.get_real_time()
@@ -1802,7 +1717,7 @@ local ANTIBUG = {
         end
     end
     
-    local function on_shot_for_heart(e)
+    function on_shot_for_heart(e)
         if e.result ~= 'hit' then return end
     
         local time = globalvars.get_real_time()
@@ -1818,7 +1733,7 @@ local ANTIBUG = {
     client.register_callback('paint', on_heart_render)
     client.register_callback('shot_fired', on_shot_for_heart)
     
-    local function for_scope_transparent()
+    function for_scope_transparent()
         local me = entitylist.get_local_player()
     
         if not me or not me:is_alive() then
@@ -2062,7 +1977,7 @@ local ANTIBUG = {
     end
     client.register_callback("paint", on_hotkey_binds)
     
-    local function damaged_warn()
+    function damaged_warn()
         local warn = dmged:get_value()
         local size = dmged_size:get_value()
         local alpha = dmged_alpha:get_value()
@@ -2113,7 +2028,7 @@ local ANTIBUG = {
     
     
     --=========================================================================================================================
-    local function print_fps()
+    function print_fps()
         if fps_boost:get_value() == true then
         se.get_convar("r_3dsky"):set_int(0)
         se.get_convar("r_shadows"):set_int(0)
@@ -2156,7 +2071,7 @@ local ANTIBUG = {
     
     client.register_callback("paint", print_fps)
     
-    local function on_unload_fps()
+    function on_unload_fps()
         se.get_convar("r_3dsky"):set_int(1)
         se.get_convar("cl_csm_static_prop_shadows"):set_int(1)
         se.get_convar("cl_csm_shadows"):set_int(1)
@@ -2175,15 +2090,15 @@ local ANTIBUG = {
     end
     client.register_callback("unload", on_unload_fps)
     
-    local function paint_blur()
+    function paint_blur()
         if panorama_blur:get_value() == true then
             se.get_convar("@panorama_disable_blur"):set_int(1)
         else
             se.get_convar("@panorama_disable_blur"):set_int(0)
         end
     end
-    client.register_callback("paint", paint_blur)
-    local function on_unload_blur()
+    
+    function on_unload_blur()
         se.get_convar("@panorama_disable_blur"):set_int(0)
     end
     client.register_callback("unload", on_unload_blur)
@@ -2208,7 +2123,12 @@ local ANTIBUG = {
                 console_color.clr[3] = 255
         console_print(engine_cvar, console_color, ANTIBUG[anti_b])
     end
-    
+    local function on_paint()
+        on_select_tab()
+        to_show_aa()
+        to_call_back()
+    end
+    client.register_callback("paint", on_paint)
     --=========================================================================================================================
     to_show_tab0()
     to_hide_tab1()
