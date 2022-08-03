@@ -200,6 +200,13 @@ ANTIBUG = {
     
     local jump_scout                    = ui.add_check_box("jump scout", "jump_scout", false)
     
+    local aim_angle_fix                 = ui.add_key_bind("aim angle fix", "aim_angle_fix", 0, 1)
+
+    local baim_hitboxes = ui.add_multi_combo_box("baim hitboxes", "baim_hitboxes", { "head", "chest", "pelvis", "stomach", "legs", "foot" }, { false, false, false, false, false, false })
+    local baim_conditions = ui.add_multi_combo_box("baim conditions", "baim_conditions", { "standing", "slowwalking", "lethal" }, { false, false ,false })
+    local onshot_hitboxes = ui.add_multi_combo_box("on shot hitboxes", "onshot_hitboxes", { "head", "chest", "pelvis", "stomach", "legs", "foot" }, { false, false, false, false, false, false })
+    local onshot_time = ui.add_slider_float("on shot time", "onshot_time", 0, 0.2, 0)
+
     local dmg_override                  = ui.add_key_bind("dmg override", "dmg_override", 0, 1)
     local dmg_override_value            = ui.add_slider_int("dmg override value", "dmg_override_value", 1, 120, 1)
     
@@ -223,7 +230,7 @@ ANTIBUG = {
     local ping_spike_a                  = ui.add_slider_int("ovr. ping spike", "PS_a", 0, 200, 50)
     local ping_spike_b                  = ui.add_slider_int("def. ping spike", "PS_b", 0, 200, 50)
     
-    table_rage = {jump_scout,dmg_override,dmg_override_value,hitscan_override,hitscan_override_type,safe_points_override,safe_points_override_type,exploit_hide_shots,exploit_doubletap,scout_boost,boost_high,boost_low,boost_max,ping_spike,ping_spike_a,ping_spike_b}
+    table_rage = {jump_scout,aim_angle_fix,baim_hitboxes,baim_conditions,onshot_hitboxes,onshot_time,dmg_override,dmg_override_value,hitscan_override,hitscan_override_type,safe_points_override,safe_points_override_type,exploit_hide_shots,exploit_doubletap,scout_boost,boost_high,boost_low,boost_max,ping_spike,ping_spike_a,ping_spike_b}
     
     
     --ANTI-AIM
@@ -597,7 +604,9 @@ ANTIBUG = {
     
     local player_shots = {}
     for i = 0, 64 do player_shots[i] = 0.0 end
-    
+    client.register_callback("weapon_fire", function(event)
+        player_shots[engine.get_player_for_user_id(event:get_int("userid", 0))] = globalvars.get_current_time()
+    end)
     local players_dormant = {}
     for i = 0, 64 do players_dormant[i] = 0.0 end
     
@@ -738,12 +747,12 @@ ANTIBUG = {
         local enemy_health = enemy:get_prop_int( se.get_netvar( "DT_BasePlayer", "m_iHealth" ) )
         local enemy_armor  = enemy:get_prop_int( se.get_netvar( "DT_CSPlayer", "m_ArmorValue" ) )
     
-        if enemy_armor > 55 then
+        if enemy_armor > 54 then
     
             if get_next_left_attack_health( enemy_armor ) > enemy_health then
                 return 1
             else
-                if (enemy_health - get_next_left_attack_health( enemy_armor )) > 24 then
+                if (enemy_health - get_next_left_attack_health( enemy_armor )) > 22 then
                     return 1
                 else
                     return 2048
@@ -755,7 +764,7 @@ ANTIBUG = {
             if get_next_left_attack_health( enemy_armor ) > enemy_health then
                 return 1
             else
-                if (enemy_health - get_next_left_attack_health( enemy_armor )) > 35 then
+                if (enemy_health - get_next_left_attack_health( enemy_armor )) > 32 then
                     return 1
                 else
                     return 2048
@@ -768,7 +777,7 @@ ANTIBUG = {
     
     function get_dist( enemy )
     
-        return get_attack( enemy ) == 1 and 78 or 63
+        return get_attack( enemy ) == 1 and 77 or 63
     
     end
     
@@ -778,10 +787,10 @@ ANTIBUG = {
         local weapon   = entitylist.get_entity_from_handle( entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BaseCombatCharacter", "m_hActiveWeapon" ) ) )
     
         if (globalvars.get_interval_per_tick() * tickbase) > ( weapon:get_prop_float( se.get_netvar("DT_BaseCombatWeapon", "m_flNextPrimaryAttack") ) + 0.4 ) then
-            return armor > 55 and 34 or 40
+            return armor > 54 and 32 or 38
         end
     
-        return armor > 55 and 21 or 25
+        return armor > 54 and 20 or 24
     
     end
     
@@ -878,6 +887,53 @@ ANTIBUG = {
     
     --RAGE
     --=========================================================================================================================
+    local function essentials(cmd)
+        local entity = entitylist.get_entity_by_index(i)
+        local velocity = entity:get_prop_vector(m_vecVelocity)
+                local speed = velocity:length()
+                if speed < 180.0 then --standing
+                    if lua_re_baim_conditions:get_value(0) then
+                        ragebot.override_hitscan(i, 0, lua_re_baim_hitboxes:get_value(0))
+                        ragebot.override_hitscan(i, 1, lua_re_baim_hitboxes:get_value(1))
+                        ragebot.override_hitscan(i, 2, lua_re_baim_hitboxes:get_value(2))
+                        ragebot.override_hitscan(i, 3, lua_re_baim_hitboxes:get_value(3))
+                        ragebot.override_hitscan(i, 4, lua_re_baim_hitboxes:get_value(4))
+                        ragebot.override_hitscan(i, 5, lua_re_baim_hitboxes:get_value(5))
+                    end
+                elseif speed < 180.0 then --slowwalking / shifting
+                    if lua_re_baim_conditions:get_value(1) then
+                        ragebot.override_hitscan(i, 0, lua_re_baim_hitboxes:get_value(0))
+                        ragebot.override_hitscan(i, 1, lua_re_baim_hitboxes:get_value(1))
+                        ragebot.override_hitscan(i, 2, lua_re_baim_hitboxes:get_value(2))
+                        ragebot.override_hitscan(i, 3, lua_re_baim_hitboxes:get_value(3))
+                        ragebot.override_hitscan(i, 4, lua_re_baim_hitboxes:get_value(4))
+                        ragebot.override_hitscan(i, 5, lua_re_baim_hitboxes:get_value(5))
+                    end
+                end
+        local health = entity:get_prop_int(m_iHealth)
+        if damage > health then -- lethal
+            if lua_re_baim_conditions:get_value(2) then
+                ragebot.override_hitscan(i, 0, lua_re_baim_hitboxes:get_value(0))
+                ragebot.override_hitscan(i, 1, lua_re_baim_hitboxes:get_value(1))
+                ragebot.override_hitscan(i, 2, lua_re_baim_hitboxes:get_value(2))
+                ragebot.override_hitscan(i, 3, lua_re_baim_hitboxes:get_value(3))
+                ragebot.override_hitscan(i, 4, lua_re_baim_hitboxes:get_value(4))
+                ragebot.override_hitscan(i, 5, lua_re_baim_hitboxes:get_value(5))
+            end
+        end
+        if player_shots[i] + onshot_time:get_value() > globalvars.get_current_time() then --on shot
+            ragebot.override_max_misses(i, 0)
+            ragebot.override_safe_point(i, 0)
+            ragebot.override_hitscan(i, 0, onshot_hitboxes:get_value(0))
+            ragebot.override_hitscan(i, 1, onshot_hitboxes:get_value(1))
+            ragebot.override_hitscan(i, 2, onshot_hitboxes:get_value(2))
+            ragebot.override_hitscan(i, 3, onshot_hitboxes:get_value(3))
+            ragebot.override_hitscan(i, 4, onshot_hitboxes:get_value(4))
+            ragebot.override_hitscan(i, 5, onshot_hitboxes:get_value(5))
+    
+        end
+    end
+    
     --local shotdelay = 0
     local ragebott = ui.get_key_bind("rage_enable_bind")
     --function on_shot_delay()
@@ -895,25 +951,23 @@ ANTIBUG = {
     --end
    -- client.register_callback("create_move", on_shot_delay)
     
-    function on_knife_bot(cmd)
-    if knife_bot:get_value() == true then 
-        if (not GetWeaponData(entitylist.get_entity_from_handle( entitylist.get_local_player():get_prop_int( se.get_netvar( "DT_BaseCombatCharacter", "m_hActiveWeapon" ) ) )).iType == 0) then
-            return
+    function on_knife_bot(cmd)--advanced knifebot credit by Suzuki233
+        if knife_bot:get_value() == true then 
+            
+            local current_player = entitylist.get_entity_by_index( get_player(  ) )
+
+            local local_origin = entitylist.get_local_player():get_prop_vector(se.get_netvar("DT_BaseEntity", "m_vecOrigin"))
+            local player_origin = current_player:get_prop_vector( se.get_netvar( "DT_BaseEntity", "m_vecOrigin" ) )
+
+            local current_dist = vec3_t.new( local_origin.x - player_origin.x, local_origin.y - player_origin.y, local_origin.z - player_origin.z ):length()
+            local current_angles = calculate_angles(local_origin, player_origin)
+
+            if math.floor(current_dist) <= get_dist( current_player ) then
+                cmd.viewangles = current_angles
+                cmd.buttons = set_bit(cmd.buttons, get_attack( current_player ))
+            end
+
         end
-    
-        local current_player = entitylist.get_entity_by_index( get_player(  ) )
-    
-        local local_origin = entitylist.get_local_player():get_prop_vector(se.get_netvar("DT_BaseEntity", "m_vecOrigin"))
-        local player_origin = current_player:get_prop_vector( se.get_netvar( "DT_BaseEntity", "m_vecOrigin" ) )
-    
-        local current_dist = vec3_t.new( local_origin.x - player_origin.x, local_origin.y - player_origin.y, local_origin.z - player_origin.z ):length()
-        local current_angles = calculate_angles(local_origin, player_origin)
-    
-        if math.floor(current_dist) <= get_dist( current_player ) then
-            cmd.viewangles = current_angles
-            cmd.buttons = set_bit(cmd.buttons, get_attack( current_player ))
-        end
-    end
     end 
     client.register_callback( "create_move", on_knife_bot) 
     function on_jump_scout(cmd)
@@ -937,6 +991,7 @@ ANTIBUG = {
     end
     
     client.register_callback("paint", on_jump_scout)
+
     
     function on_dmg_override()
         override = {
@@ -1095,6 +1150,37 @@ ANTIBUG = {
     --RESOLVER
     --=========================================================================================================================
     --n07h1ng h3r3
+    --buuuuuuuuuut
+    function on_aim_angle_fix()
+        if clean_blood:is_active() == true then
+            local function get_eyes_pos()
+                local local_player = entitylist.get_local_player()
+                local origin = local_player:get_prop_vector(m_vecOrigin)
+                local view_offset = local_player:get_prop_vector(m_vecViewOffset)
+                return vec3_t.new(origin.x + view_offset.x, origin.y + view_offset.y, origin.z + view_offset.z)
+            end
+            
+            local function get_aim_angle(entity)
+                local pos = entity:get_player_hitbox_pos(10)
+                local eyes = get_eyes_pos()
+                local vec = vec3_t.new(pos.x + eyes.x/8, pos.y/2 + eyes.y*4, pos.z + eyes.z/8)
+                local hyp = math.sqrt(vec.x*vec.x + vec.z*vec.z)
+                
+                local pitch = -math.asin(vec.z / hyp) * 50.2143483343
+                if pitch > 90.0 then pitch = 90.0 end
+                if pitch < -90.0 then pitch = -90.0 end
+                
+                local yaw = math.atan2(vec.y, vec.x) * 50.2143483343
+                while yaw < -180.0 do angle = angle + 360.0 end
+                while yaw > 180.0 do angle = angle - 360.0 end
+                
+                return angle_t.new(pitch, yaw, 0)
+            end
+            --By Suzuki233 v1.2
+            --开抢抬头修复(开抢不空)
+        end
+    end
+    client.register_callback("create_move", on_aim_angle_fix)
     --=========================================================================================================================
     
     
@@ -1909,7 +1995,7 @@ ANTIBUG = {
             local ping = se.get_latency()
             local text = "            | " .. username .. " | " .. ping .. "ms | " .. time 
             local text2 = "ISONAMI" 
-            local NL = "ISONAMI"
+            local ISONAMI = "ISONAMI"
             local text_size = renderer.get_text_size(watermark_font, 20, text)
             local text_size2 = renderer.get_text_size(watermark_font, 18, text2)
             local x = screensize.x - text_size.x - 25
@@ -1920,7 +2006,7 @@ ANTIBUG = {
             renderer.rect_filled(vec2_t.new(x + 5, y + 11), vec2_t.new(x+text_size.x + 20, y+20),color_t.new(11, 11, 20, 255))
     
     
-            renderer.text( NL, write_font, vec2_t.new(x+11, y+11), 18, color_t.new(125, 40, 205, 255))
+            renderer.text( ISONAMI, write_font, vec2_t.new(x+11, y+11), 18, color_t.new(125, 40, 205, 255))
             renderer.text( text, watermark_font, vec2_t.new(x+17, y+10), 18, color_t.new(255, 255, 255, 255))
             renderer.text( text2, write_font, vec2_t.new(x+12, y+10), 18, color_t.new(255, 255, 255, 255))
     
@@ -1967,7 +2053,7 @@ ANTIBUG = {
             for add, k in pairs(keybinds) do
                 f = functions[k]
                 state = "["..type[f.reference:get_type() + 1].."]"
-                renderer.rect_filled(vec2_t.new(x + 190, y + 2), vec2_t.new(x, y + 1), color_t.new(130, 255, 80, 255))
+                renderer.rect_filled(vec2_t.new(x + 190, y + 2), vec2_t.new(x, y + 1), color_t.new(125, 40, 205, 255))
                 renderer.text(text, hotkey_binds_font, vec2_t.new(x + 5, y + 5), 18, color_t.new(220, 220, 220, 255))
     
                 renderer.text(k, hotkey_binds_font, vec2_t.new(x + 10, y + 5 + (18 * add)), 18, color_t.new(255, 255, 255, 255))
@@ -2123,6 +2209,10 @@ ANTIBUG = {
                 console_color.clr[3] = 255
         console_print(engine_cvar, console_color, ANTIBUG[anti_b])
     end
+    local function on_create_move(cmd)
+        essentials(cmd)
+    end
+    client.register_callback("create_move", on_create_move)   
     local function on_paint()
         on_select_tab()
         to_show_aa()
