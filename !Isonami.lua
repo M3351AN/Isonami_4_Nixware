@@ -527,7 +527,12 @@ ANTIBUG = {
         for i = 1, #table_aa do 
             table_aa[i]:set_visible(false)
         end 
-    
+        to_hide_sta()
+        to_hide_mov()
+        to_hide_slo()
+        to_hide_air()
+        to_hide_duc()
+        to_hide_adu()
     end
     function to_hide_tab3()
     
