@@ -1235,20 +1235,16 @@ ANTIBUG = {
     local switcher = false
     function AA_switch()
         local curtime = globalvars.get_current_time()
+        local ramdom_num = math.random(2)
         if fast_flip:get_value() == true then
-            if switcher == false then
-            switcher = true
-            elseif switcher == true then
-                if ui.get_key_bind("antihit_antiaim_flip_bind"):is_active() == true then
-                ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
-                else
-                ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
-                end
-                switcher = false
+            if ramdom_num == 1 then
+            ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
+            else
+            ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
             end
         end
     end
-    
+    local max = false
     function AA_execute(cmd)
         local player = entitylist.get_entity_by_index(engine.get_local_player())
         local localPlayer = entitylist.get_local_player()
@@ -1264,36 +1260,125 @@ ANTIBUG = {
                 if fet_velocity <= 5 and m_bDucked ~= 1 then--stand
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_sta:get_value()
-                    
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_max_sta:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_min_sta:get_value())
+                        max = true
+                    end      
                 elseif fet_velocity > 5 and antihit_extra_slowwalk_bind:is_active() == false then--moving
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_mov:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_max_mov:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_min_mov:get_value())
+                        max = true
+                    end      
                 elseif antihit_extra_slowwalk_bind:is_active() then--slowwalk
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_slo:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_max_slo:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_min_slo:get_value())
+                        max = true
+                    end      
+                elseif m_hGroundEntity ~= -1 and m_bDucked == 1 then--duck
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_duc:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_max_duc:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_min_duc:get_value())
+                        max = true
+                    end      
                 elseif m_hGroundEntity == -1 and m_bDucked ~= 1 then--air
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_air:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_max_air:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_min_air:get_value())
+                        max = true
+                    end      
                 elseif m_hGroundEntity == -1 and m_bDucked == 1 then--air+duck
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_adu:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_max_adu:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(right_min_adu:get_value())
+                        max = true
+                    end      
                 end
             else--left
                 if fet_velocity <= 5 and m_bDucked ~= 1 then--stand
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_sta:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_max_sta:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_min_sta:get_value())
+                        max = true
+                    end      
                 elseif fet_velocity > 5 and antihit_extra_slowwalk_bind:is_active() == false then--moving
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_mov:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_max_mov:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_min_mov:get_value())
+                        max = true
+                    end      
                 elseif antihit_extra_slowwalk_bind:is_active() then--slowwalk
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_slo:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_max_slo:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_min_slo:get_value())
+                        max = true
+                    end      
+                elseif m_hGroundEntity ~= -1 and m_bDucked == 1 then--duck
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_duc:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_max_duc:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_min_duc:get_value())
+                        max = true
+                    end      
                 elseif m_hGroundEntity == -1 and m_bDucked ~= 1 then--air
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_air:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_max_air:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_min_air:get_value())
+                        max = true
+                    end      
                 elseif m_hGroundEntity == -1 and m_bDucked == 1 then--air+duck
                     cmd.viewangles.yaw = engine.get_view_angles().yaw
                     cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_adu:get_value()
+                    if max == true then
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_max_adu:get_value())
+                        max = false
+                    else
+                        ui.get_slider_int("antihit_antiaim_desync_length"):set_value(left_min_adu:get_value())
+                        max = true
+                    end      
                 end
             end
         end
