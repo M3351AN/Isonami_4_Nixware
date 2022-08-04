@@ -247,11 +247,12 @@ ANTIBUG = {
     
     local slowwalk_breaker          = ui.add_key_bind("slowwalk breaker", "slowwalk_breaker", 0,1)
     local AA_iso                    = ui.add_check_box("m1tzw AA", "AA_iso", false)
+    local fast_flip                    = ui.add_check_box("fast swicher", "fast_flip", false)
     local fire_key                  = ui.add_key_bind("fire key[!require]", "fire_key", 0,1)
     local use_key                    = ui.add_key_bind("use key[!require]", "use_key", 0,1)
     local switch_tick               = ui.add_slider_int("!switch tick", "switch_tick", 1, 16, 1)
     local AA_select                 = ui.add_combo_box("aa select", "AA_select", {"hide","standing", "moving", "slowwalk", "air", "duck","air+duck"}, 0)
-    table_aa = {antihit_antiaim_left,antihit_antiaim_backwards,antihit_antiaim_right,legit_aa,at_targets_only_in_air,slowwalk_breaker,AA_iso,fire_key,use_key,switch_tick,AA_select}
+    table_aa = {antihit_antiaim_left,antihit_antiaim_backwards,antihit_antiaim_right,legit_aa,at_targets_only_in_air,slowwalk_breaker,AA_iso,fast_flip,fire_key,use_key,switch_tick,AA_select}
     --goto line 293
     local left_yaw_add_sta          = ui.add_slider_int("left yaw add", "left_yaw_add_sta", -180, 180, 0)
     local right_yaw_add_sta         = ui.add_slider_int("right yaw add", "right_yaw_add_sta", -180, 180, 0)
@@ -1234,15 +1235,17 @@ ANTIBUG = {
     local switcher = false
     function AA_switch()
         local curtime = globalvars.get_current_time()
-        if switcher == false then
+        if fast_flip:get_value() == true then
+            if switcher == false then
             switcher = true
-        elseif switcher == true then
-            if ui.get_key_bind("antihit_antiaim_flip_bind"):is_active() == true then
+            elseif switcher == true then
+                if ui.get_key_bind("antihit_antiaim_flip_bind"):is_active() == true then
                 ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
-            else
+                else
                 ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
+                end
+                switcher = false
             end
-            switcher = false
         end
     end
     
