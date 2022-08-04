@@ -247,9 +247,11 @@ ANTIBUG = {
     
     local slowwalk_breaker          = ui.add_key_bind("slowwalk breaker", "slowwalk_breaker", 0,1)
     local AA_iso                    = ui.add_check_box("m1tzw AA", "AA_iso", false)
-    local switch_tick               = ui.add_slider_int("switch tick", "switch_tick", 1, 16, 1)
+    local fire_key                  = ui.add_key_bind("fire key[!require]", "fire_key", 0,1)
+    local use_key                    = ui.add_key_bind("use key[!require]", "use_key", 0,1)
+    local switch_tick               = ui.add_slider_int("!switch tick", "switch_tick", 1, 16, 1)
     local AA_select                 = ui.add_combo_box("aa select", "AA_select", {"hide","standing", "moving", "slowwalk", "air", "duck","air+duck"}, 0)
-    table_aa = {antihit_antiaim_left,antihit_antiaim_backwards,antihit_antiaim_right,legit_aa,at_targets_only_in_air,slowwalk_breaker,AA_iso,switch_tick,AA_select}
+    table_aa = {antihit_antiaim_left,antihit_antiaim_backwards,antihit_antiaim_right,legit_aa,at_targets_only_in_air,slowwalk_breaker,AA_iso,fire_key,use_key,switch_tick,AA_select}
     --goto line 293
     local left_yaw_add_sta          = ui.add_slider_int("left yaw add", "left_yaw_add_sta", -180, 180, 0)
     local right_yaw_add_sta         = ui.add_slider_int("right yaw add", "right_yaw_add_sta", -180, 180, 0)
@@ -594,9 +596,20 @@ ANTIBUG = {
  
     --netvar and function
     --=========================================================================================================================
+    
     local defpng                = renderer.setup_texture("C:/nixware/DEF.png")
     local dmgpng                = renderer.setup_texture("C:/nixware/DMG.png")
+
+    screen = engine.get_screen_size()
     
+    is_fake_duck = ui.get_key_bind("antihit_extra_fakeduck_bind")
+    is_inverted = ui.get_key_bind("antihit_antiaim_flip_bind")
+    is_exploit_type = ui.get_combo_box("rage_active_exploit")
+    is_exploit_bind = ui.get_key_bind("rage_active_exploit_bind")
+
+    is_slowwalk_checkbox = ui.get_check_box("antihit_extra_slowwalk")
+    is_slowwalk = ui.get_key_bind("antihit_extra_slowwalk_bind")
+    is_desync_length = ui.get_slider_int("antihit_antiaim_desync_length")
     local m_bPinPulled = se.get_netvar("DT_BaseCSGrenade", "m_bPinPulled")
     local m_fThrowTime = se.get_netvar("DT_BaseCSGrenade", "m_fThrowTime")
     local m_hActiveWeapon = se.get_netvar("DT_BaseCombatCharacter", "m_hActiveWeapon")
@@ -1218,26 +1231,67 @@ ANTIBUG = {
     
     --ANTI-AIM
     --=========================================================================================================================
+    local switcher = false
+    function AA_switch()
+        local curtime = globalvars.get_current_time()
+        if switcher == false then
+            switcher = true
+        elseif switcher == true then
+            if ui.get_key_bind("antihit_antiaim_flip_bind"):is_active() == true then
+                ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(1)
+            else
+                ui.get_key_bind("antihit_antiaim_flip_bind"):set_type(0)
+            end
+            switcher = false
+        end
+    end
+    
     function AA_execute(cmd)
         local player = entitylist.get_entity_by_index(engine.get_local_player())
-        local m_bDucked = player:get_prop_int(se.get_netvar("DT_BasePlayer", "m_bDucked"))
-        local m_hGroundEntity = player:get_prop_int(se.get_netvar("DT_BasePlayer", "m_hGroundEntity"))
+        local localPlayer = entitylist.get_local_player()
+        local m_bDucked = localPlayer:get_prop_int(se.get_netvar("DT_BasePlayer", "m_bDucked"))
+        local m_hGroundEntity = localPlayer:get_prop_int(se.get_netvar("DT_BasePlayer", "m_hGroundEntity"))
         if player then
 
             fet_velocity = math.sqrt(player:get_prop_float(m_vecVelocity[0]) ^ 2 + player:get_prop_float(m_vecVelocity[1]) ^ 2)
         end
     
-        if fet_velocity ~= nil then
-            if fet_velocity < 5 and m_bDucked ~= 1 then--stand
-
-            elseif fet_velocity > 5 and antihit_extra_slowwalk_bind:is_active() == false then--moving
-
-            elseif antihit_extra_slowwalk_bind:is_active() then--slowwalk
-
-            elseif m_hGroundEntity == -1 and m_bDucked ~= 1 then--air
-
-            elseif m_hGroundEntity == -1 and m_bDucked == 1 then--air+duck
-
+        if AA_iso:get_value() == true and use_key:is_active() == false and fire_key:is_active() == false then
+            if ui.get_key_bind("antihit_antiaim_flip_bind"):is_active() == true then--right
+                if fet_velocity <= 5 and m_bDucked ~= 1 then--stand
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_sta:get_value()
+                    
+                elseif fet_velocity > 5 and antihit_extra_slowwalk_bind:is_active() == false then--moving
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_mov:get_value()
+                elseif antihit_extra_slowwalk_bind:is_active() then--slowwalk
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_slo:get_value()
+                elseif m_hGroundEntity == -1 and m_bDucked ~= 1 then--air
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_air:get_value()
+                elseif m_hGroundEntity == -1 and m_bDucked == 1 then--air+duck
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + right_yaw_add_adu:get_value()
+                end
+            else--left
+                if fet_velocity <= 5 and m_bDucked ~= 1 then--stand
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_sta:get_value()
+                elseif fet_velocity > 5 and antihit_extra_slowwalk_bind:is_active() == false then--moving
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_mov:get_value()
+                elseif antihit_extra_slowwalk_bind:is_active() then--slowwalk
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_slo:get_value()
+                elseif m_hGroundEntity == -1 and m_bDucked ~= 1 then--air
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_air:get_value()
+                elseif m_hGroundEntity == -1 and m_bDucked == 1 then--air+duck
+                    cmd.viewangles.yaw = engine.get_view_angles().yaw
+                    cmd.viewangles.yaw = cmd.viewangles.yaw + left_yaw_add_adu:get_value()
+                end
             end
         end
     end
@@ -1907,16 +1961,7 @@ ANTIBUG = {
     
     indicators_font = renderer.setup_font("C:/windows/fonts/comic.ttf", 18, 0)
     function on_indicators()
-        screen = engine.get_screen_size()
-    
-        is_fake_duck = ui.get_key_bind("antihit_extra_fakeduck_bind")
-        is_inverted = ui.get_key_bind("antihit_antiaim_flip_bind")
-        is_exploit_type = ui.get_combo_box("rage_active_exploit")
-        is_exploit_bind = ui.get_key_bind("rage_active_exploit_bind")
-    
-        is_slowwalk_checkbox = ui.get_check_box("antihit_extra_slowwalk")
-        is_slowwalk = ui.get_key_bind("antihit_extra_slowwalk_bind")
-        is_desync_length = ui.get_slider_int("antihit_antiaim_desync_length")
+
     
         if indicators:get_value() then
             if not legit_aa:is_active() then
@@ -2260,12 +2305,16 @@ ANTIBUG = {
                 console_color.clr[3] = 255
         console_print(engine_cvar, console_color, ANTIBUG[anti_b])
     end
-    local function on_create_move(cmd)
-        AA_execute(cmd)
-        essentials(cmd)
+    local function on_create_move()
+        --AA_execute(cmd)
+        --essentials(cmd)
+        AA_switch()
         on_aim_angle_fix()
         on_shot_do()
     end
+    
+    client.register_callback("create_move", essentials) 
+    client.register_callback("create_move", AA_execute) 
     client.register_callback("create_move", on_create_move)   
     local function on_paint()
         on_select_tab()
