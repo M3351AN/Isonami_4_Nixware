@@ -19,7 +19,7 @@ ANTIBUG = {
     "     =====`-.____`.___ \\_____/___.-`___.-\'=====\n",
     "\n",
     "              佛祖保佑         永无BUG\n",
-    "Author: M3351AN#7417 A.K.A. Teikumo / Crespy / YKK\n",
+    "Author: m1tzw#5953 A.K.A. Teikumo / Crespy / YKK\n",
     "\n"
     }--print at console
     local nixc = false
@@ -202,6 +202,8 @@ ANTIBUG = {
     
     local aim_angle_fix                 = ui.add_key_bind("aim angle fix", "aim_angle_fix", 0, 1)
 
+    local fl_0_onshot                   = ui.add_check_box("open dt onshot", "fl_0_onshot", false)
+
     local baim_hitboxes = ui.add_multi_combo_box("baim hitboxes", "baim_hitboxes", { "head", "chest", "pelvis", "stomach", "legs", "foot" }, { false, false, false, false, false, false })
     local baim_conditions = ui.add_multi_combo_box("baim conditions", "baim_conditions", { "standing", "slowwalking", "lethal" }, { false, false ,false })
     local onshot_hitboxes = ui.add_multi_combo_box("on shot hitboxes", "onshot_hitboxes", { "head", "chest", "pelvis", "stomach", "legs", "foot" }, { false, false, false, false, false, false })
@@ -230,7 +232,7 @@ ANTIBUG = {
     local ping_spike_a                  = ui.add_slider_int("ovr. ping spike", "PS_a", 0, 200, 50)
     local ping_spike_b                  = ui.add_slider_int("def. ping spike", "PS_b", 0, 200, 50)
     
-    table_rage = {jump_scout,aim_angle_fix,baim_hitboxes,baim_conditions,onshot_hitboxes,onshot_time,dmg_override,dmg_override_value,hitscan_override,hitscan_override_type,safe_points_override,safe_points_override_type,exploit_hide_shots,exploit_doubletap,scout_boost,boost_high,boost_low,boost_max,ping_spike,ping_spike_a,ping_spike_b}
+    table_rage = {jump_scout,aim_angle_fix,fl_0_onshot,baim_hitboxes,baim_conditions,onshot_hitboxes,onshot_time,dmg_override,dmg_override_value,hitscan_override,hitscan_override_type,safe_points_override,safe_points_override_type,exploit_hide_shots,exploit_doubletap,scout_boost,boost_high,boost_low,boost_max,ping_spike,ping_spike_a,ping_spike_b}
     
     
     --ANTI-AIM
@@ -933,7 +935,31 @@ ANTIBUG = {
     
         end
     end
-    
+    local check_time = false
+    local fire_time = false
+    function for_on_shot_do(e)
+        fire_time = true
+        if fl_0_onshot:get_value() == true then
+            is_exploit_bind:set_type(0)
+            is_exploit:set_value(2)
+        end
+    end
+
+    client.register_callback("shot_fired",for_on_shot_do)
+    function on_shot_do()
+        if math.random(0,8) == 1 then
+            check_time=true
+        end
+        if fire_time and check_time then --on shot
+            if fl_0_onshot:get_value() == true then
+                is_exploit_bind:set_type(1)
+                is_exploit:set_value(0)
+            end
+            fire_time = false
+            check_time = false
+        
+        end
+    end
     --local shotdelay = 0
     local ragebott = ui.get_key_bind("rage_enable_bind")
     --function on_shot_delay()
@@ -1061,6 +1087,7 @@ ANTIBUG = {
         if exploit_hide_shots:is_active() then
             is_exploit_bind:set_type(0)
             is_exploit:set_value(1)
+            
         end
     
         if exploit_doubletap:is_active() then
@@ -1152,7 +1179,7 @@ ANTIBUG = {
     --n07h1ng h3r3
     --buuuuuuuuuut
     function on_aim_angle_fix()
-        if clean_blood:is_active() == true then
+        if aim_angle_fix:is_active() == true then
             local function get_eyes_pos()
                 local local_player = entitylist.get_local_player()
                 local origin = local_player:get_prop_vector(m_vecOrigin)
@@ -1190,6 +1217,30 @@ ANTIBUG = {
     
     
     --ANTI-AIM
+    --=========================================================================================================================
+    function AA_execute(cmd)
+        local player = entitylist.get_entity_by_index(engine.get_local_player())
+        local m_bDucked = player:get_prop_int(se.get_netvar("DT_BasePlayer", "m_bDucked"))
+        local m_hGroundEntity = player:get_prop_int(se.get_netvar("DT_BasePlayer", "m_hGroundEntity"))
+        if player then
+
+            fet_velocity = math.sqrt(player:get_prop_float(m_vecVelocity[0]) ^ 2 + player:get_prop_float(m_vecVelocity[1]) ^ 2)
+        end
+    
+        if fet_velocity ~= nil then
+            if fet_velocity < 5 and m_bDucked ~= 1 then--stand
+
+            elseif fet_velocity > 5 and antihit_extra_slowwalk_bind:is_active() == false then--moving
+
+            elseif antihit_extra_slowwalk_bind:is_active() then--slowwalk
+
+            elseif m_hGroundEntity == -1 and m_bDucked ~= 1 then--air
+
+            elseif m_hGroundEntity == -1 and m_bDucked == 1 then--air+duck
+
+            end
+        end
+    end
     --=========================================================================================================================
     function weapon_data( weapon )
         return ffi.cast("struct Weapon_Info_t*", weapon_data_call(ffi.cast("void*", weapon:get_address())));
@@ -2210,7 +2261,10 @@ ANTIBUG = {
         console_print(engine_cvar, console_color, ANTIBUG[anti_b])
     end
     local function on_create_move(cmd)
+        AA_execute(cmd)
         essentials(cmd)
+        on_aim_angle_fix()
+        on_shot_do()
     end
     client.register_callback("create_move", on_create_move)   
     local function on_paint()
